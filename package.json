@@ -1,0 +1,18 @@
+{
+  "dependencies": {
+    "bufferutil": "^4.0.3",
+    "express": "^4.17.1",
+    "socket.io": "^4.0.1",
+    "utf-8-validate": "^5.0.4",
+    "ws": "^7.4.4"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "name": "dotracer",
+  "version": "1.0.0",
+  "description": "Racing IO game",
+  "main": "\t",
+  "author": "Michael Manta",
+  "license": "ISC"
+}
