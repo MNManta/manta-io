@@ -1,16 +1,18 @@
-'use strict';
-
+// Setup server
 const express = require('express');
-const socketIO = require('socket.io');
+const app = express();
+const path = require('path');
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
+const port = process.env.PORT || 3000;
 
-const PORT = process.env.PORT || 3000;
-const INDEX = 'index.html';
+server.listen(port, () => {
+  console.log('Server listening at port %d', port);
+});
 
-const server = express()
-  .use(express.static('public'))
-  .listen(PORT, () => console.log(`Listening on ${PORT}`));
+// Routing
+app.use(express.static(path.join(__dirname, 'public')));
 
-const io = socketIO(server);
 
 io.on('connection', (socket) => {
   console.log('Client connected with ID ' + socket.id);
