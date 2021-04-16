@@ -71,11 +71,6 @@ function draw() {
       strokeWeight(0);
       ellipse(players[i].x, players[i].y, 5, 5);
     }
-    else{
-      fill(players[i].color);
-      strokeWeight(0);
-      ellipse(players[i].x, players[i].y, 5, 5);
-    }
   }
 
 
@@ -127,6 +122,7 @@ function draw() {
   //console.log(player.movement);
 
   racetrack.show();
+  player.show();
   player.update();
 
   var data = {
