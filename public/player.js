@@ -1,12 +1,9 @@
-function Player(x, y, borders, connection) {
-  this.id = connection.id;
+function Player(x, y) {
 
   this.movement = [0, 0];
 
   this.position = createVector(x, y);
   this.velocity = createVector(0, 0);
-
-  this.collision = false;
 
   // Make the track generate randomly, see if you can use websockets to join other players
   // Leaderboard by color in corner
@@ -29,17 +26,6 @@ function Player(x, y, borders, connection) {
     var move = createVector(this.movement[0], this.movement[1]);
     this.velocity.lerp(move, 0.2);
     this.position.add(this.velocity);
-
-    for (i = 0; i < borders.pointArray.length; i++) {
-      isHit = collideLineCircle(borders.pointArray[i][0], borders.pointArray[i][1], borders.pointArray[i][2], borders.pointArray[i][3], this.position.x, this.position.y, 15);
-      if (isHit === true){
-        console.log("You got hit");
-        this.movement = [0, 0];
-        this.velocity = createVector(0, 0);
-        this.position = createVector(0, 0);
-      }
-      //break?
-    }
   };
 
   this.show = function() {

@@ -9,15 +9,13 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
 
   //Create socket connection
-  socket = io();
-
-  //console.log(socket);
+  socket = io({transports: ['websocket'], upgrade: false});
 
   //Create track
   racetrack = new Track();
 
   //Create player
-  player = new Player(0, 0, racetrack, socket);
+  player = new Player(0, 0);
 
   var data = {
     x: player.position.x,
@@ -77,6 +75,26 @@ function draw() {
   if (keyIsDown(DOWN_ARROW)) {
     player.movement[1] += 0.1;
   };
+
+  for (i = 0; i < racetrack.pointArray.length; i++) {
+    isHit = collideLineCircle(racetrack.pointArray[i][0], racetrack.pointArray[i][1], racetrack.pointArray[i][2], racetrack.pointArray[i][3], player.position.x, player.position.y, 15);
+    if (isHit === true){
+      console.log("You got hit");
+      player.movement = [0, 0];
+      player.velocity = createVector(0, 0);
+      player.position = createVector(0, 0);
+    }
+  }
+  for (i = 0; i < players.length; i++) {
+      //console.log(players);
+      hitPlayer = collideCircleCircle(player.position.x, player.position.y, 5, players[i].x, players[i].x, 5);
+      if (hitPlayer === true ){
+        console.log("You hit a player");
+        //player.movement = [0, 0];
+        //player.velocity = createVector(0, 0);
+        //player.position = createVector(0, 0);
+      }
+  }
 
   //console.log(player.movement);
 
