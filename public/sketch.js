@@ -20,7 +20,9 @@ function setup() {
   var data = {
     x: player.position.x,
     y: player.position.y,
-    id: player.id
+    id: player.id,
+    movement: player.movement,
+    velocity: [player.velocity.x, player.velocity.y]
   };
 
   //Send player position data to the server
@@ -53,7 +55,7 @@ function draw() {
 
   for (var i = 0; i < players.length; i++){
     if (players[i].id != socket.id){
-      fill(100, 100, 200);
+      fill(400, 100, 200);
       strokeWeight(0);
       ellipse(players[i].x, players[i].y, 5, 5);
     }
@@ -88,14 +90,19 @@ function draw() {
   }
   for (i = 0; i < players.length; i++) {
       //console.log(player.id, players[i].userid);
-      //console.log(players);
+      console.log(players);
       if (player.id != players[i].userid){
       hitPlayer = collideCircleCircle(player.position.x, player.position.y, 5, players[i].x, players[i].y, 5);
         if (hitPlayer === true){
-          console.log(player.movement);
-          player.movement = [-player.movement[0], -player.movement[1]];
-          console.log(player.movement);
-          player.velocity = createVector(-player.velocity.x, -player.velocity.y);
+          console.log(players);
+          //player gets enemy movement and velocity
+          player.movement = [players[i].movement[0], players[i].movement[1]];
+          player.velocity.x = players[i].velocity[0];
+          player.velocity.y = players[i].velocity[1];
+
+          //enemy gets player movement and velocity
+          players[i].movement = [player.movement[0], player.movement[1]];
+          players[i].velocity = [player.velocity.x, player.velocity.y];
         }
       }
   }
@@ -108,7 +115,9 @@ function draw() {
 
   var data = {
     x: player.position.x,
-    y: player.position.y
+    y: player.position.y,
+    movement: player.movement,
+    velocity: [player.velocity.x, player.velocity.y]
   };
 
   //Update position on server
