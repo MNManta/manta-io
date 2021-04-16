@@ -1,5 +1,5 @@
 function Player(x, y) {
-
+  this.id = random();
   this.movement = [0, 0];
 
   this.position = createVector(x, y);

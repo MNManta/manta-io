@@ -19,7 +19,8 @@ function setup() {
 
   var data = {
     x: player.position.x,
-    y: player.position.y
+    y: player.position.y,
+    id: player.id
   };
 
   //Send player position data to the server
@@ -86,13 +87,15 @@ function draw() {
     }
   }
   for (i = 0; i < players.length; i++) {
-      //console.log(players);
-      hitPlayer = collideCircleCircle(player.position.x, player.position.y, 5, players[i].x, players[i].x, 5);
-      if (hitPlayer === true ){
-        console.log("You hit a player");
-        //player.movement = [0, 0];
-        //player.velocity = createVector(0, 0);
-        //player.position = createVector(0, 0);
+      console.log(player.id, players[i].userid);
+      if (player.id != players[i].userid){
+      hitPlayer = collideCircleCircle(player.position.x, player.position.y, 5, players[i].x, players[i].y, 5);
+        if (hitPlayer === true){
+          console.log("You hit a player");
+          //player.movement = [0, 0];
+          //player.velocity = createVector(0, 0);
+          //player.position = createVector(0, 0);
+        }
       }
   }
 

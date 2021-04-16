@@ -8,10 +8,11 @@ const port = process.env.PORT || 3000;
 
 var players = [];
 
-function Player(id, x, y){
+function Player(id, x, y, userid){
   this.id = id;
   this.x = x;
   this.y = y;
+  this.userid = userid;
 }
 
 
@@ -71,8 +72,8 @@ io.on('connection',
             }
           }
         }
-        console.log('Client with ID ' + socket.id + ' disconnected');
-        console.log("These are the players " + players);
+        //console.log('Client with ID ' + socket.id + ' disconnected');
+        //console.log("These are the players " + players);
       }
     );
 
