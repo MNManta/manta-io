@@ -59,7 +59,7 @@ io.on('connection',
 
     socket.on('disconnect', function(){
         for (var i = 0; i < players.length; i++){
-          console.log(socket.id, players[i].id);
+          //console.log(socket.id, players[i].id);
           if(socket.id == players[i].id){
             if (i === 0){
               //This drove me crazy, basically without this the first

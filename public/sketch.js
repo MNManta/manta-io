@@ -87,15 +87,15 @@ function draw() {
     }
   }
   for (i = 0; i < players.length; i++) {
-      console.log(player.id, players[i].userid);
-      console.log(players);
+      //console.log(player.id, players[i].userid);
+      //console.log(players);
       if (player.id != players[i].userid){
       hitPlayer = collideCircleCircle(player.position.x, player.position.y, 5, players[i].x, players[i].y, 5);
         if (hitPlayer === true){
-          console.log("You hit a player");
-          player.movement = [0, 0];
-          player.velocity = createVector(0, 0);
-          //player.position = createVector(0, 0);
+          console.log(player.movement);
+          player.movement = [-player.movement[0], -player.movement[1]];
+          console.log(player.movement);
+          player.velocity = createVector(-player.velocity.x, -player.velocity.y);
         }
       }
   }
