@@ -35,8 +35,7 @@ io.on('connection',
 
     socket.on('start',
       function(data) {
-        //console.log(socket.id + " " + data.x + " " + data.y);
-        var player = new Player(socket.id, data.x, data.y);
+        var player = new Player(socket.id, data.x, data.y, data.id);
         //console.log(player);
         players.push(player);
       }
