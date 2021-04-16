@@ -108,12 +108,12 @@ function draw() {
         if (hitPlayer === true){
           //console.log(players);
           //player gets enemy movement and velocity
-          player.movement = [players[i].movement[0], players[i].movement[1]];
+          player.movement = [players[i].movement[0] + 0.5, players[i].movement[1] + 0.5];
           player.velocity.x = players[i].velocity[0];
           player.velocity.y = players[i].velocity[1];
 
           //enemy gets player movement and velocity
-          players[i].movement = [player.movement[0], player.movement[1]];
+          players[i].movement = [player.movement[0] - 0.5, player.movement[1] - 0.5];
           players[i].velocity = [player.velocity.x, player.velocity.y];
         }
       }
