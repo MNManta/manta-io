@@ -14,15 +14,27 @@ function setup() {
   //Create track
   racetrack = new Track();
 
+  colorsArray = ['#1c0b19', '#140D4F', '#4EA699', '#6FEDB7', '#3F26D9', '#E07A5F', '#F2CC8F'];
+
+  playercolor = _.sample(colorsArray);
+
+  for (i = 0; i < players.length; i++) {
+    //This could break with too many players
+    while (players[i].color == playercolor){
+      playercolor = _.sample(colorsArray);
+    }
+  }
+
   //Create player
-  player = new Player(0, 0);
+  player = new Player(0, 0, playercolor);
 
   var data = {
     x: player.position.x,
     y: player.position.y,
     id: player.id,
     movement: player.movement,
-    velocity: [player.velocity.x, player.velocity.y]
+    velocity: [player.velocity.x, player.velocity.y],
+    color: player.color
   };
 
   //Send player position data to the server
@@ -55,7 +67,12 @@ function draw() {
 
   for (var i = 0; i < players.length; i++){
     if (players[i].id != socket.id){
-      fill(400, 100, 200);
+      fill(players[i].color);
+      strokeWeight(0);
+      ellipse(players[i].x, players[i].y, 5, 5);
+    }
+    else{
+      fill(players[i].color);
       strokeWeight(0);
       ellipse(players[i].x, players[i].y, 5, 5);
     }
@@ -90,11 +107,11 @@ function draw() {
   }
   for (i = 0; i < players.length; i++) {
       //console.log(player.id, players[i].userid);
-      console.log(players);
+      //console.log(players);
       if (player.id != players[i].userid){
       hitPlayer = collideCircleCircle(player.position.x, player.position.y, 5, players[i].x, players[i].y, 5);
         if (hitPlayer === true){
-          console.log(players);
+          //console.log(players);
           //player gets enemy movement and velocity
           player.movement = [players[i].movement[0], players[i].movement[1]];
           player.velocity.x = players[i].velocity[0];
@@ -110,7 +127,6 @@ function draw() {
   //console.log(player.movement);
 
   racetrack.show();
-  player.show();
   player.update();
 
   var data = {

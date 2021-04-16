@@ -1,6 +1,7 @@
-function Player(x, y) {
+function Player(x, y, color) {
   this.id = random();
   this.movement = [0, 0];
+  this.color = color;
 
   this.position = createVector(x, y);
   this.velocity = createVector(0, 0);
@@ -28,9 +29,4 @@ function Player(x, y) {
     this.position.add(this.velocity);
   };
 
-  this.show = function() {
-    fill(100, 100, 200);
-    strokeWeight(0);
-    ellipse(this.position.x, this.position.y, 5, 5);
-  };
 }

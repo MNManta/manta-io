@@ -8,13 +8,14 @@ const port = process.env.PORT || 3000;
 
 var players = [];
 
-function Player(id, x, y, userid, movement, velocity){
+function Player(id, x, y, userid, movement, velocity, color){
   this.id = id;
   this.x = x;
   this.y = y;
   this.userid = userid;
   this.movement = movement;
   this.velocity = velocity;
+  this.color = color;
 }
 
 
@@ -37,7 +38,7 @@ io.on('connection',
 
     socket.on('start',
       function(data) {
-        var player = new Player(socket.id, data.x, data.y, data.id, data.movement, data.velocity);
+        var player = new Player(socket.id, data.x, data.y, data.id, data.movement, data.velocity, data.color);
         //console.log(player);
         players.push(player);
       }
