@@ -29,4 +29,9 @@ function Player(x, y, color) {
     this.position.add(this.velocity);
   };
 
+  this.show = function(){
+    fill(this.color);
+    strokeWeight(0);
+    ellipse(this.position.x, this.position.y, 5, 5);
+  }
 }
