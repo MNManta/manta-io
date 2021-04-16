@@ -6,6 +6,16 @@ const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const port = process.env.PORT || 3000;
 
+var players = [];
+
+
+function Player(id, x, y){
+  this.id = id;
+  this.x = x;
+  this.y = y;
+}
+
+
 server.listen(port, () => {
   console.log('Server listening at port %d', port);
 });
@@ -16,16 +26,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 io.on('connection', (socket) => {
   console.log('Client connected with ID ' + socket.id);
-  socket.on('disconnect', () => console.log('Client disconnected'));
+  socket.on('disconnect', function(){
+      for (var i = 0; i < players.length; i++){
+        if(socket.id == players[i].id){
+          players.splice(i, i);
+        }
+      }
+      console.log('Client with ID ' + socket.id + 'disconnected');
+    }
+  );
 });
 
-var players = [];
-
-function Player(id, x, y){
-  this.id = id;
-  this.x = x;
-  this.y = y;
-}
 
 setInterval(heartbeat, 10);
 

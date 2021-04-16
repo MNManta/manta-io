@@ -38,6 +38,7 @@ function Player(x, y, borders, connection) {
         this.velocity = createVector(0, 0);
         this.position = createVector(0, 0);
       }
+      //break?
     }
   };
 
