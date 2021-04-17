@@ -26,8 +26,8 @@ function setup() {
     }
   }
 
-  //Create player
-  player = new Player((20*random() + -20*random()), (20*random() + -20*random()), playercolor);
+  //Create player (20*random() + -20*random())
+  player = new Player((30*random() + -30*random()), (30*random() + -30*random()), playercolor);
 
   var data = {
     x: player.position[0],
@@ -60,7 +60,9 @@ function draw() {
   translate(width / 2, height / 2);
 
   //Follow the player
-  translate(-player.position[0], -player.position[1]);
+  translate(-2*player.position[0], -2*player.position[1]);
+
+  scale(2);
 
   for (var i = 0; i < players.length; i++){
     if (players[i].id != socket.id){
@@ -93,7 +95,7 @@ function draw() {
     if (isHit === true){
       console.log("You got hit");
       player.velocity = [0, 0];
-      player.position = [(20*random() + -20*random()), (20*random() + -20*random())];
+      player.position = [(30*random() + -30*random()), (30*random() + -30*random())];
     }
   }
   for (i = 0; i < players.length; i++) {
@@ -101,18 +103,32 @@ function draw() {
       //console.log(players);
       if (player.id != players[i].userid){
       hitPlayer = collideCircleCircle(player.position[0], player.position[1], 5, players[i].x, players[i].y, 5);
-        if (hitPlayer === true && (player.position[0] - players[i].x < 3) && (player.position[1] - players[i].y < 3)){
-          player.velocity = [0.05*(player.position[0] - players[i].x), 0.05*(player.position[1] - players[i].y)];
-
-          players[i].velocity = [-0.05*(player.position[0] - players[i].x), -0.05*(player.position[1] - players[i].y)];
-        }
-        else if(hitPlayer === true){
+        if(hitPlayer === true){
           //console.log(players);
           //player gets enemy velocity and velocity
           player.velocity = [players[i].velocity[0], players[i].velocity[1]];
 
+          //They get caught together when they point the same way.
           //enemy gets player velocity and velocity
           players[i].velocity = [player.velocity[0], player.velocity[1]];
+
+          if(player.position[0] - players[i].x <= 0){
+            player.velocity[0] -= 0.1;
+            players[i].velocity[0] += 0.1;
+          }
+          else{
+            player.velocity[0] += 0.1;
+            players[i].velocity[0] -= 0.1;
+          }
+
+          if(player.position[1] - players[i].y <= 0){
+            player.velocity[1] -= 0.1;
+            players[i].velocity[1] += 0.1;
+          }
+          else{
+            player.velocity[1] += 0.1;
+            players[i].velocity[1] -= 0.1;
+          }
         }
       }
   }

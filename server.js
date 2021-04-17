@@ -25,7 +25,7 @@ server.listen(port, () => {
 // Routing
 app.use(express.static(path.join(__dirname, 'public')));
 
-setInterval(heartbeat, 10);
+setInterval(heartbeat, 1);
 
 function heartbeat(){
   //console.log(players);
