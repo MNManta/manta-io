@@ -36,6 +36,6 @@ function Player(x, y, color, size) {
   this.show = function(){
     fill(this.color);
     strokeWeight(0);
-    ellipse(this.position[0], this.position[1], 5, 5);
+    ellipse(this.position[0], this.position[1], radius, radius);
   }
 }
