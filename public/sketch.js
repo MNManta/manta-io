@@ -1,6 +1,8 @@
 var socket;
 var player;
 
+var radius = 5;
+
 var players = [];
 var racetrack;
 
@@ -27,14 +29,15 @@ function setup() {
   }
 
   //Create player (20*random() + -20*random())
-  player = new Player((30*random() + -30*random()), (30*random() + -30*random()), playercolor);
+  player = new Player((30*random() + -30*random()), (30*random() + -30*random()), playercolor, radius);
 
   var data = {
     x: player.position[0],
     y: player.position[1],
     id: player.id,
     velocity: player.velocity,
-    color: player.color
+    color: player.color,
+    radius: player.radius
   };
 
   //Send player position data to the server
@@ -68,10 +71,107 @@ function draw() {
     if (players[i].id != socket.id){
       fill(players[i].color);
       strokeWeight(0);
-      ellipse(players[i].x, players[i].y, 5, 5);
+      ellipse(players[i].x, players[i].y, radius, radius);
     }
   }
 
+  for (i = 0; i < racetrack.pointArray.length; i++) {
+    isHit = collideLineCircle(racetrack.pointArray[i][0], racetrack.pointArray[i][1], racetrack.pointArray[i][2], racetrack.pointArray[i][3], player.position[0], player.position[1], 10 + radius);
+    if (isHit === true){
+      console.log("You got hit");
+      player.velocity = [0, 0];
+      player.position = [(30*random() + -30*random()), (30*random() + -30*random())];
+    }
+  }
+  for (i = 0; i < players.length; i++) {
+      //console.log(player.id, players[i].userid);
+      //console.log(players);
+      if (player.id != players[i].userid){
+      hitPlayer = collideCircleCircle(player.position[0], player.position[1], (player.forcefield*radius), players[i].x, players[i].y, players[i].radius);
+        if(hitPlayer === true){
+          if ((player.forcefield*radius) > players[i].radius){
+            //console.log(players);
+            //player gets enemy velocity and velocity
+            player.velocity = [0.01*player.velocity[0], 0.01*player.velocity[1]];
+
+            //enemy gets player velocity and velocity
+            players[i].velocity = [player.velocity[0], player.velocity[1]];
+
+            if(player.position[0] - players[i].x <= 0){
+              players[i].velocity[0] += 0.5;
+            }
+            else{
+              players[i].velocity[0] -= 0.5;
+            }
+
+            if(player.position[1] - players[i].y <= 0){
+              players[i].velocity[1] += 0.5;
+            }
+            else{
+              players[i].velocity[1] -= 0.5;
+            }
+          }
+          else if ((player.forcefield*radius) < players[i].radius){
+            //console.log(players);
+            //player gets enemy velocity and velocity
+            if (players[i].velocity[0] == 0){
+              player.velocity = [players[i].velocity[0] - player.velocity[0], players[i].velocity[1] - player.velocity[1]];
+            }
+            else{
+              player.velocity = [players[i].velocity[0], players[i].velocity[1]];
+            }
+            //enemy gets player velocity and velocity
+            //players[i].velocity = [player.velocity[0], player.velocity[1]];
+
+            if(player.position[0] - players[i].x <= 0){
+              player.velocity[0] -= 0.5;
+            }
+            else{
+              player.velocity[0] += 0.5;
+            }
+
+            if(player.position[1] - players[i].y <= 0){
+              player.velocity[1] -= 0.5;
+            }
+            else{
+              player.velocity[1] += 0.5;
+            }
+          }
+          else {
+            //console.log(players);
+            //player gets enemy velocity and velocity
+            player.velocity = [players[i].velocity[0], players[i].velocity[1]];
+
+            //enemy gets player velocity and velocity
+            players[i].velocity = [player.velocity[0], player.velocity[1]];
+
+            if(player.position[0] - players[i].x <= 0){
+              player.velocity[0] -= 0.1;
+              players[i].velocity[0] += 0.1;
+            }
+            else{
+              player.velocity[0] += 0.1;
+              players[i].velocity[0] -= 0.1;
+            }
+
+            if(player.position[1] - players[i].y <= 0){
+              player.velocity[1] -= 0.1;
+              players[i].velocity[1] += 0.1;
+            }
+            else{
+              player.velocity[1] += 0.1;
+              players[i].velocity[1] -= 0.1;
+            }
+          }
+        }
+      }
+  }
+
+  //console.log(player.velocity);
+
+  racetrack.show();
+  player.show();
+  player.update();
 
   //Arrow Key velocity
   if (keyIsDown(LEFT_ARROW)) {
@@ -90,59 +190,11 @@ function draw() {
     player.velocity[1] += 0.1;
   };
 
-  for (i = 0; i < racetrack.pointArray.length; i++) {
-    isHit = collideLineCircle(racetrack.pointArray[i][0], racetrack.pointArray[i][1], racetrack.pointArray[i][2], racetrack.pointArray[i][3], player.position[0], player.position[1], 15);
-    if (isHit === true){
-      console.log("You got hit");
-      player.velocity = [0, 0];
-      player.position = [(30*random() + -30*random()), (30*random() + -30*random())];
-    }
-  }
-  for (i = 0; i < players.length; i++) {
-      //console.log(player.id, players[i].userid);
-      //console.log(players);
-      if (player.id != players[i].userid){
-      hitPlayer = collideCircleCircle(player.position[0], player.position[1], 5, players[i].x, players[i].y, 5);
-        if(hitPlayer === true){
-          //console.log(players);
-          //player gets enemy velocity and velocity
-          player.velocity = [players[i].velocity[0], players[i].velocity[1]];
-
-          //They get caught together when they point the same way.
-          //enemy gets player velocity and velocity
-          players[i].velocity = [player.velocity[0], player.velocity[1]];
-
-          if(player.position[0] - players[i].x <= 0){
-            player.velocity[0] -= 0.1;
-            players[i].velocity[0] += 0.1;
-          }
-          else{
-            player.velocity[0] += 0.1;
-            players[i].velocity[0] -= 0.1;
-          }
-
-          if(player.position[1] - players[i].y <= 0){
-            player.velocity[1] -= 0.1;
-            players[i].velocity[1] += 0.1;
-          }
-          else{
-            player.velocity[1] += 0.1;
-            players[i].velocity[1] -= 0.1;
-          }
-        }
-      }
-  }
-
-  //console.log(player.velocity);
-
-  racetrack.show();
-  player.show();
-  player.update();
-
   var data = {
     x: player.position[0],
     y: player.position[1],
-    velocity: player.velocity
+    velocity: player.velocity,
+    radius: (radius*player.forcefield)
   };
 
   //Update position on server

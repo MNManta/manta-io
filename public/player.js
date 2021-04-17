@@ -1,9 +1,10 @@
-function Player(x, y, color) {
+function Player(x, y, color, size) {
   this.id = random();
   this.velocity = [0, 0];
   this.color = color;
-
+  this.radius = size;
   this.position = [x, y];
+  this.forcefield = 1;
 
   // Make the track generate randomly, see if you can use websockets to join other players
   // Leaderboard by color in corner
@@ -24,6 +25,12 @@ function Player(x, y, color) {
 
   this.update = function() {
     this.position = [this.position[0] + this.velocity[0], this.position[1] + this.velocity[1]];
+    if (keyIsDown(87)){
+      this.forcefield = 4;
+    }
+    else if(keyIsDown(81)){
+      this.forcefield = 1;
+    }
   };
 
   this.show = function(){

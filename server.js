@@ -8,13 +8,14 @@ const port = process.env.PORT || 3000;
 
 var players = [];
 
-function Player(id, x, y, userid, velocity, color){
+function Player(id, x, y, userid, velocity, color, radius){
   this.id = id;
   this.x = x;
   this.y = y;
   this.userid = userid;
   this.velocity = velocity;
   this.color = color;
+  this.radius = radius;
 }
 
 
@@ -37,7 +38,7 @@ io.on('connection',
 
     socket.on('start',
       function(data) {
-        var player = new Player(socket.id, data.x, data.y, data.id, data.velocity, data.color);
+        var player = new Player(socket.id, data.x, data.y, data.id, data.velocity, data.color, data.radius);
         //console.log(player);
         players.push(player);
       }
@@ -56,6 +57,7 @@ io.on('connection',
           player.x = data.x;
           player.y = data.y;
           player.velocity = data.velocity;
+          player.radius = data.radius;
         }
         catch (err){
           console.log("Player with ID " + socket.id + " has disconnected.");
