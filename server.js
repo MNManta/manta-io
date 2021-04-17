@@ -52,11 +52,14 @@ io.on('connection',
             player = players[i];
           }
         }
-
-        player.x = data.x;
-        player.y = data.y;
-        player.velocity = data.velocity;
-
+        try {
+          player.x = data.x;
+          player.y = data.y;
+          player.velocity = data.velocity;
+        }
+        catch (err){
+          console.log("Player with ID " + socket.id + " has disconnected.");
+        }
       }
     );
 
