@@ -1,7 +1,7 @@
 var socket;
 var player;
 
-var radius = 5;
+var radius = 12;
 
 var players = [];
 var racetrack;
@@ -63,9 +63,7 @@ function draw() {
   translate(width / 2, height / 2);
 
   //Follow the player
-  translate(-2*player.position[0], -2*player.position[1]);
-
-  scale(2);
+  translate(-player.position[0], -player.position[1]);
 
   for (var i = 0; i < players.length; i++){
     if (players[i].id != socket.id){
@@ -75,8 +73,8 @@ function draw() {
     }
   }
 
-  for (i = 0; i < racetrack.pointArray.length; i++) {
-    isHit = collideLineCircle(racetrack.pointArray[i][0], racetrack.pointArray[i][1], racetrack.pointArray[i][2], racetrack.pointArray[i][3], player.position[0], player.position[1], 10 + radius);
+  for (i = 0; i < racetrack.pointArray.length; i += 4) {
+    isHit = collideLineCircle(racetrack.pointArray[i], racetrack.pointArray[i+1], racetrack.pointArray[i+2], racetrack.pointArray[i+3], player.position[0], player.position[1], 10 + radius);
     if (isHit === true){
       console.log("You got hit");
       player.velocity = [0, 0];
