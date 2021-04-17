@@ -1,10 +1,9 @@
 function Player(x, y, color) {
   this.id = random();
-  this.movement = [0, 0];
+  this.velocity = [0, 0];
   this.color = color;
 
-  this.position = createVector(x, y);
-  this.velocity = createVector(0, 0);
+  this.position = [x, y];
 
   // Make the track generate randomly, see if you can use websockets to join other players
   // Leaderboard by color in corner
@@ -24,14 +23,12 @@ function Player(x, y, color) {
 
 
   this.update = function() {
-    var move = createVector(this.movement[0], this.movement[1]);
-    this.velocity.lerp(move, 0.2);
-    this.position.add(this.velocity);
+    this.position = [this.position[0] + this.velocity[0], this.position[1] + this.velocity[1]];
   };
 
   this.show = function(){
     fill(this.color);
     strokeWeight(0);
-    ellipse(this.position.x, this.position.y, 5, 5);
+    ellipse(this.position[0], this.position[1], 5, 5);
   }
 }

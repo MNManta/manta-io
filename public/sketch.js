@@ -14,7 +14,8 @@ function setup() {
   //Create track
   racetrack = new Track();
 
-  colorsArray = ['#1c0b19', '#140D4F', '#4EA699', '#6FEDB7', '#3F26D9', '#E07A5F', '#F2CC8F'];
+  colorsArray = ['#988B8E', '#140D4F', '#E5C3D1', '#6FEDB7', '#3F26D9', '#E07A5F', '#F2CC8F',
+  '#6B0504', '#FF84E8', '#414361', '#9EBD6E', "#805D93", "#385F71", "#CF4D6F"];
 
   playercolor = _.sample(colorsArray);
 
@@ -26,14 +27,13 @@ function setup() {
   }
 
   //Create player
-  player = new Player(0, 0, playercolor);
+  player = new Player(20*random(), 20*random(), playercolor);
 
   var data = {
-    x: player.position.x,
-    y: player.position.y,
+    x: player.position[0],
+    y: player.position[1],
     id: player.id,
-    movement: player.movement,
-    velocity: [player.velocity.x, player.velocity.y],
+    velocity: player.velocity,
     color: player.color
   };
 
@@ -60,7 +60,7 @@ function draw() {
   translate(width / 2, height / 2);
 
   //Follow the player
-  translate(-2*player.position.x, -2*player.position.y);
+  translate(-2*player.position[0], -2*player.position[1]);
 
   //Zoom in by 2x
   scale(2);
@@ -74,62 +74,57 @@ function draw() {
   }
 
 
-  //Arrow Key Movement
+  //Arrow Key velocity
   if (keyIsDown(LEFT_ARROW)) {
-    player.movement[0] -= 0.1;
+    player.velocity[0] -= 0.1;
   };
 
   if (keyIsDown(RIGHT_ARROW)) {
-    player.movement[0] += 0.1;
+    player.velocity[0] += 0.1;
   };
 
   if (keyIsDown(UP_ARROW)) {
-    player.movement[1] -= 0.1;
+    player.velocity[1] -= 0.1;
   };
 
   if (keyIsDown(DOWN_ARROW)) {
-    player.movement[1] += 0.1;
+    player.velocity[1] += 0.1;
   };
 
   for (i = 0; i < racetrack.pointArray.length; i++) {
-    isHit = collideLineCircle(racetrack.pointArray[i][0], racetrack.pointArray[i][1], racetrack.pointArray[i][2], racetrack.pointArray[i][3], player.position.x, player.position.y, 15);
+    isHit = collideLineCircle(racetrack.pointArray[i][0], racetrack.pointArray[i][1], racetrack.pointArray[i][2], racetrack.pointArray[i][3], player.position[0], player.position[1], 15);
     if (isHit === true){
       console.log("You got hit");
-      player.movement = [0, 0];
-      player.velocity = createVector(0, 0);
-      player.position = createVector(0, 0);
+      player.velocity = [0, 0];
+      player.position = [20*random(), 20*random()];
     }
   }
   for (i = 0; i < players.length; i++) {
       //console.log(player.id, players[i].userid);
       //console.log(players);
       if (player.id != players[i].userid){
-      hitPlayer = collideCircleCircle(player.position.x, player.position.y, 5, players[i].x, players[i].y, 5);
-        if (hitPlayer === true){
+      hitPlayer = collideCircleCircle(player.position[0], player.position[1], 5, players[i].x, players[i].y, 5);
+        if(hitPlayer === true){
           //console.log(players);
-          //player gets enemy movement and velocity
-          player.movement = [players[i].movement[0] + 0.5, players[i].movement[1] + 0.5];
-          player.velocity.x = players[i].velocity[0];
-          player.velocity.y = players[i].velocity[1];
+          //player gets enemy velocity and velocity
+          player.velocity = [players[i].velocity[0], players[i].velocity[1]];
 
-          //enemy gets player movement and velocity
-          players[i].movement = [player.movement[0] - 0.5, player.movement[1] - 0.5];
-          players[i].velocity = [player.velocity.x, player.velocity.y];
+          //enemy gets player velocity and velocity
+          players[i].velocity = [player.velocity[0], player.velocity[1]];
         }
       }
   }
 
-  //console.log(player.movement);
+  //console.log(player.velocity);
 
   racetrack.show();
   player.show();
   player.update();
 
   var data = {
-    x: player.position.x,
-    y: player.position.y,
-    movement: player.movement,
-    velocity: [player.velocity.x, player.velocity.y]
+    x: player.position[0],
+    y: player.position[1],
+    velocity: player.velocity
   };
 
   //Update position on server
