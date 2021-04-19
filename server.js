@@ -6,18 +6,21 @@ const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const port = process.env.PORT || 3000;
 
-var players = [];
+var players = {};
 
-function Player(id, x, y, userid, velocity, color, radius){
-  this.id = id;
-  this.x = x;
-  this.y = y;
-  this.userid = userid;
-  this.velocity = velocity;
+var diameter = 12;
+
+var colorsArray = ['#988B8E', '#140D4F', '#E5C3D1', '#6FEDB7', '#3F26D9', '#E07A5F', '#F2CC8F',
+'#6B0504', '#FF84E8', '#414361', '#9EBD6E', "#805D93", "#385F71", "#CF4D6F"];
+
+var playercolor;
+
+function Player(x, y, color, diameter){
+  this.position = [x, y];
+  this.velocity = [0,0];
   this.color = color;
-  this.radius = radius;
+  this.diameter = diameter;
 }
-
 
 server.listen(port, () => {
   console.log('Server listening at port %d', port);
@@ -26,61 +29,70 @@ server.listen(port, () => {
 // Routing
 app.use(express.static(path.join(__dirname, 'public')));
 
-setInterval(heartbeat, 1);
-
-function heartbeat(){
-  //console.log(players);
-  io.emit('heartbeat', players);
-}
-
 io.on('connection',
   function(socket) {
 
+    var clientid = socket.id;
+
     socket.on('start',
-      function(data) {
-        var player = new Player(socket.id, data.x, data.y, data.id, data.velocity, data.color, data.radius);
-        //console.log(player);
-        players.push(player);
+      function() {
+        //When player connects, make a Player object
+        //Constructor Player(id, x, y, velocity, color, diameter)
+        playercolor = colorsArray[Math.floor(Math.random() * colorsArray.length)];
+        var player = new Player(-120, 10*diameter*Math.random() - 10*diameter, playercolor, diameter);
+
+        players[clientid] = player;
+
+        socket.emit('getID', clientid);
+        socket.emit('heartbeat', players);
+        console.log("Current players in lobby: ");
+        console.log(players);
       }
     );
 
     socket.on('update',
       function(data) {
-        //console.log(socket.id + " " + data.x + " " + data.y);
-        var player;
-        for (var i = 0; i < players.length; i++){
-          if(socket.id == players[i].id){
-            player = players[i];
-          }
+
+        if (typeof players[clientid] !== "undefined"){
+          players[clientid].velocity = data;
+          players[clientid].position = [players[clientid].position[0] + players[clientid].velocity[0],
+           players[clientid].position[1] + players[clientid].velocity[1]];
+
+          //console.log(players[clientid].velocity);
         }
-        try {
-          player.x = data.x;
-          player.y = data.y;
-          player.velocity = data.velocity;
-          player.radius = data.radius;
+        else{
+          console.log('Client with ID ' + clientid + ' disconnected');
         }
-        catch (err){
-          console.log("Player with ID " + socket.id + " has disconnected.");
-        }
+        socket.emit('heartbeat', players);
       }
     );
 
     socket.on('disconnect', function(){
-        for (var i = 0; i < players.length; i++){
-          //console.log(socket.id, players[i].id);
-          if(socket.id == players[i].id){
-            if (i === 0){
-              //This drove me crazy, basically without this the first
-              //element never disappears.
-              players.splice(0, 1);
-            }
-            else{
-              players.splice(i, i);
-            }
-          }
-        }
+        delete players[clientid];
+        socket.emit('heartbeat', players);
+        console.log("The following client disconnected: ");
+        console.log(clientid);
+        console.log("Current players in lobby: ");
+        console.log(players);
         //console.log('Client with ID ' + socket.id + ' disconnected');
         //console.log("These are the players " + players);
+      }
+    );
+
+    socket.on('hitwall', function(){
+      if (typeof players[clientid] !== "undefined"){
+        players[clientid].velocity = [0, 0];
+        players[clientid].position = [10*diameter*Math.random() - 10*diameter, 10*diameter*Math.random() - 10*diameter];
+        socket.emit('heartbeat', players);
+        }
+      }
+    );
+
+    socket.on('hitplayer', function(data){
+        if (typeof players[clientid] !== "undefined"){
+          players[clientid].velocity = data;
+          socket.emit('heartbeat', players);
+        }
       }
     );
 
