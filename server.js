@@ -39,11 +39,7 @@ io.on('connection',
         //When player connects, make a Player object
         //Constructor Player(id, x, y, velocity, color, diameter)
         playercolor = colorsArray[Math.floor(Math.random() * colorsArray.length)];
-<<<<<<< HEAD
-        var player = new Player(10*diameter*Math.random() - 10*diameter, 10*diameter*Math.random() - 10*diameter, playercolor, diameter);
-=======
-        var player = new Player(-120, 10*diameter*Math.random() - 10*diameter, playercolor, diameter);
->>>>>>> 2e191517a37e384f8fb08b36e609b763b7b9ef79
+        var player = new Player(10*diameter*Math.random()*2 - 10*diameter, 10*diameter*Math.random()*2 - 10*diameter, playercolor, diameter);
 
         players[clientid] = player;
 
@@ -86,7 +82,7 @@ io.on('connection',
     socket.on('hitwall', function(){
       if (typeof players[clientid] !== "undefined"){
         players[clientid].velocity = [0, 0];
-        players[clientid].position = [10*diameter*Math.random() - 10*diameter, 10*diameter*Math.random() - 10*diameter];
+        players[clientid].position = [10*diameter*Math.random()*2 - 10*diameter, 10*diameter*Math.random()*2 - 10*diameter];
         socket.emit('heartbeat', players);
         }
       }
