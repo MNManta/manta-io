@@ -2,6 +2,8 @@ var socket;
 var playerIndex;
 var connectionid;
 
+var playername;
+
 var players = {};
 
 var velocity = [0, 0];
@@ -19,29 +21,33 @@ function Mainmap() {
   };
 };
 
+function savename() {
+    playername = document.getElementById("usernameinputid").value;
+    document.getElementById("usernameform").remove();
+    //Call server to build the player
+    socket.emit('start', playername);
+}
+
+
 var gamemap = new Mainmap();
 
 function setup() {
-  //Full screen canvas
-  createCanvas(windowWidth, windowHeight);
+    //Full screen canvas
+    createCanvas(windowWidth, windowHeight);
 
-  //Create socket connection
-  socket = io();
+    //Create socket connection
+    socket = io();
 
-  //Call server to build the player
-  socket.emit('start');
+    socket.on('heartbeat',
+      function(data){
+        players = data;
+      }
+    );
 
-  socket.on('heartbeat',
-    function(data){
-      players = data;
-    }
-  );
-
-  socket.on('getID',
-    function(data){
-      connectionid = data;
-  });
-
+    socket.on('getID',
+      function(data){
+        connectionid = data;
+    });
 
 }
 
@@ -55,6 +61,9 @@ function show(player){
   fill(player.color);
   strokeWeight(0);
   ellipse(player.position[0], player.position[1], player.diameter, player.diameter);
+  textAlign(CENTER);
+  textFont('Verdana');
+  text(player.name, player.position[0], player.position[1] + (1.5*player.diameter));
 }
 
 

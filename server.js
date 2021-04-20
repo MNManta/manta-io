@@ -15,11 +15,12 @@ var colorsArray = ['#988B8E', '#140D4F', '#E5C3D1', '#6FEDB7', '#3F26D9', '#E07A
 
 var playercolor;
 
-function Player(x, y, color, diameter){
+function Player(x, y, color, diameter, name){
   this.position = [x, y];
   this.velocity = [0,0];
   this.color = color;
   this.diameter = diameter;
+  this.name = name;
 }
 
 server.listen(port, () => {
@@ -35,11 +36,12 @@ io.on('connection',
     var clientid = socket.id;
 
     socket.on('start',
-      function() {
+      function(name) {
         //When player connects, make a Player object
         //Constructor Player(id, x, y, velocity, color, diameter)
         playercolor = colorsArray[Math.floor(Math.random() * colorsArray.length)];
-        var player = new Player(10*diameter*Math.random()*2 - 10*diameter, 10*diameter*Math.random()*2 - 10*diameter, playercolor, diameter);
+        var player = new Player(10*diameter*Math.random()*2 - 10*diameter, 10*diameter*Math.random()*2 - 10*diameter,
+        playercolor, diameter, name);
 
         players[clientid] = player;
 

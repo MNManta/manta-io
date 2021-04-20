@@ -1,0 +1,70 @@
+html, body {
+    overflow: hidden;
+    height: 100%;
+    margin: 0px;
+    padding: 0;
+
+    font-family: Verdana;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+}
+
+.usernameformid {
+  height: 0px;
+  opacity: 0;
+}
+
+.usernameform {
+  animation: fadein 2s;
+
+  height: 100px;
+  position: absolute;
+
+  text-align: center;
+  top: 50%;
+  width: 100%;
+
+}
+
+@keyframes fadein {
+  from {
+      opacity:0;
+  }
+  to {
+      opacity:1;
+  }
+}
+@keyframes fadeout {
+  from {
+      opacity:1;
+  }
+  to {
+      opacity:1;
+  }
+}
+
+.usernameInput {
+  -webkit-transition: border-bottom 0.5s linear;
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid #000;
+  outline: none;
+  padding-bottom: 15px;
+  text-align: center;
+  width: 400px;
+  font-size: 200%;
+  letter-spacing: 3px;
+}
+
+.usernameInput:focus {
+  border-bottom: 2px solid #48845A;
+}
+
+
+.usernameInput::-webkit-input-placeholder  {
+  -webkit-transition: opacity 0.5s linear;
+}
+
+.usernameInput:focus::-webkit-input-placeholder  {
+  opacity: 0;
+}
