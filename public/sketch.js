@@ -6,7 +6,6 @@ var playername;
 
 var players = {};
 
-var velocity = [0, 0];
 var wallwidth = 10;
 
 function Mainmap() {
@@ -70,6 +69,12 @@ function show(player){
 function draw() {
   if (players[connectionid] != null && players[connectionid] != "undefined"
   && players[connectionid] != {}) {
+    socket.emit('update', players);
+    //Update player dictionary
+    socket.on('heartbeat', function(data){
+      players = data;
+    });
+
     //console.log(players[connectionid]);
 
     //Set white background
@@ -97,19 +102,19 @@ function draw() {
 
 
     if (keyIsDown(LEFT_ARROW)) {
-      velocity[0] -= 0.1;
+      players[connectionid].velocity[0] -= 0.1;
     };
 
     if (keyIsDown(RIGHT_ARROW)) {
-      velocity[0] += 0.1;
+      players[connectionid].velocity[0] += 0.1;
     };
 
     if (keyIsDown(UP_ARROW)) {
-      velocity[1] -= 0.1;
+      players[connectionid].velocity[1] -= 0.1;
     };
 
     if (keyIsDown(DOWN_ARROW)) {
-      velocity[1] += 0.1;
+      players[connectionid].velocity[1] += 0.1;
     };
 
 
@@ -131,8 +136,11 @@ function draw() {
          wallwidth + players[connectionid].diameter);
       if (isHit === true){
         console.log("You hit a wall.");
-        velocity = [0,0];
+        players[connectionid].velocity = [0,0];
         socket.emit('hitwall');
+        socket.on('heartbeat', function(data){
+          players = data;
+        });
       }
     }
     for (let key in players){
@@ -146,13 +154,16 @@ function draw() {
           var ydistance = (players[connectionid].position[1] - players[key].position[1]);
           var distance = (Math.sqrt(Math.pow(Math.abs(xdistance),2) + Math.pow(Math.abs(ydistance),2)));
 
-          velocity = [0.1*xdistance + players[key].velocity[0], 0.1*ydistance + players[key].velocity[1]];
-          socket.emit('hitplayer', velocity);
+          players[connectionid].velocity = [0.1*xdistance + players[key].velocity[0], 0.1*ydistance + players[key].velocity[1]];
+          socket.emit('hitplayer', players);
+          socket.on('heartbeat', function(data){
+            players = data;
+          });
         }
       }
     }
-    console.log(players[connectionid].position);
+    //console.log(players[connectionid].velocity);
     //Update player position on server
-    socket.emit('update', velocity);
+    socket.emit('update', players);
   }
 }

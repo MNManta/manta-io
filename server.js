@@ -27,6 +27,7 @@ server.listen(port, () => {
   console.log('Server listening at port %d', port);
 });
 
+
 // Routing
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -56,7 +57,7 @@ io.on('connection',
       function(data) {
 
         if (typeof players[clientid] !== "undefined"){
-          players[clientid].velocity = data;
+          players[clientid].velocity = data[clientid].velocity;
           players[clientid].position = [players[clientid].position[0] + players[clientid].velocity[0],
            players[clientid].position[1] + players[clientid].velocity[1]];
 
