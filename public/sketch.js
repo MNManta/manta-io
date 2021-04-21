@@ -74,8 +74,8 @@ function draw() {
 
     //console.log(players[connectionid]);
 
-    //Set white background
-    background(256)
+    //Clear canvas.
+    clear()
 
     //Center the game
     translate(width / 2, height / 2);
@@ -91,11 +91,6 @@ function draw() {
     noFill();
     ellipse(0,0, 340, 340);
     stroke(0);
-
-    //Update player dictionary
-    socket.on('heartbeat', function(data){
-      players = data;
-    });
 
 
     if (keyIsDown(LEFT_ARROW)) {
@@ -113,6 +108,11 @@ function draw() {
     if (keyIsDown(DOWN_ARROW)) {
       players[connectionid].velocity[1] += 0.1;
     };
+
+    //Update player dictionary
+    socket.on('heartbeat', function(data){
+      players = data;
+    });
 
 
     for (let key in players) {
@@ -163,7 +163,7 @@ function draw() {
     }
 
     var endtime = new Date().getTime();
-    var deltatime = (endtime - starttime)/2;
+    var deltatime = (endtime - starttime);
     //console.log(deltatime);
     if (deltatime <= 0){
       deltatime = 1;
