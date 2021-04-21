@@ -21,10 +21,12 @@ function Mainmap() {
 };
 
 function savename() {
-    playername = document.getElementById("usernameinputid").value;
-    document.getElementById("usernameform").remove();
-    //Call server to build the player
-    socket.emit('start', playername);
+    var playername = document.getElementById("usernameinputid").value.trim();
+    if (playername.trim().length >= 1){
+      document.getElementById("usernameform").remove();
+      //Call server to build the player
+      socket.emit('start', playername);
+    }
 }
 
 
@@ -69,11 +71,6 @@ function show(player){
 function draw() {
   if (players[connectionid] != null && players[connectionid] != "undefined"
   && players[connectionid] != {}) {
-    socket.emit('update', players);
-    //Update player dictionary
-    socket.on('heartbeat', function(data){
-      players = data;
-    });
 
     //console.log(players[connectionid]);
 
@@ -124,6 +121,8 @@ function draw() {
       //console.log(velocity);
     }
 
+    var gametime = new Date().getTime();
+
     /* for (let key in players) {
       console.log(players[key]);
       show(players[key]);
@@ -155,15 +154,16 @@ function draw() {
           var distance = (Math.sqrt(Math.pow(Math.abs(xdistance),2) + Math.pow(Math.abs(ydistance),2)));
 
           players[connectionid].velocity = [0.1*xdistance + players[key].velocity[0], 0.1*ydistance + players[key].velocity[1]];
-          socket.emit('hitplayer', players);
+          socket.emit('hitplayer', players[connectionid].velocity);
           socket.on('heartbeat', function(data){
             players = data;
           });
         }
       }
     }
+
     //console.log(players[connectionid].velocity);
     //Update player position on server
-    socket.emit('update', players);
+    socket.emit('update', [players[connectionid].velocity, gametime]);
   }
 }
