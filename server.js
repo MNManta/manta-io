@@ -6,6 +6,8 @@ const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const port = process.env.PORT || 3000;
 
+var lerp = require('lerp')
+
 var players = {};
 
 var diameter = 12;
@@ -55,19 +57,12 @@ io.on('connection',
 
     socket.on('update',
       function(data) {
-        var endtime = new Date().getTime();
-        var deltatime = (endtime - starttime);
-        //console.log(deltatime);
-        var framerate = 1/deltatime;
-        if (framerate >= 60){
-          framerate = 60;
-        }
         if (typeof players[clientid] !== "undefined"){
-          players[clientid].velocity = data[0];
-          players[clientid].position = [players[clientid].position[0] + (players[clientid].velocity[0]*framerate),
-           players[clientid].position[1] + (players[clientid].velocity[1]*framerate)];
+          players[clientid].velocity = data;
+          players[clientid].position = [lerp(players[clientid].position[0], players[clientid].position[0] + players[clientid].velocity[0], 0.1),
+           lerp(players[clientid].position[1], players[clientid].position[1] + players[clientid].velocity[1], 0.1)];
 
-          //console.log(players[clientid].position);
+          //console.log(players[clientid].velocity);
         }
         else{
           //console.log('Client with ID ' + clientid + ' disconnected');

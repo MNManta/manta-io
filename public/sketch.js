@@ -94,19 +94,19 @@ function draw() {
 
 
     if (keyIsDown(LEFT_ARROW)) {
-      players[connectionid].velocity[0] -= 0.1;
+      players[connectionid].velocity[0] -= 1;
     };
 
     if (keyIsDown(RIGHT_ARROW)) {
-      players[connectionid].velocity[0] += 0.1;
+      players[connectionid].velocity[0] += 1;
     };
 
     if (keyIsDown(UP_ARROW)) {
-      players[connectionid].velocity[1] -= 0.1;
+      players[connectionid].velocity[1] -= 1;
     };
 
     if (keyIsDown(DOWN_ARROW)) {
-      players[connectionid].velocity[1] += 0.1;
+      players[connectionid].velocity[1] += 1;
     };
 
     //Update player dictionary
@@ -120,8 +120,6 @@ function draw() {
       show(players[key]);
       //console.log(velocity);
     }
-
-    var starttime = new Date().getTime();
 
     /* for (let key in players) {
       console.log(players[key]);
@@ -153,7 +151,7 @@ function draw() {
           var ydistance = (players[connectionid].position[1] - players[key].position[1]);
           var distance = (Math.sqrt(Math.pow(Math.abs(xdistance),2) + Math.pow(Math.abs(ydistance),2)));
 
-          players[connectionid].velocity = [0.1*xdistance + players[key].velocity[0], 0.1*ydistance + players[key].velocity[1]];
+          players[connectionid].velocity = [xdistance + players[key].velocity[0], ydistance + players[key].velocity[1]];
           socket.emit('hitplayer', players[connectionid].velocity);
           socket.on('heartbeat', function(data){
             players = data;
@@ -164,6 +162,6 @@ function draw() {
 
     //console.log(players[connectionid].velocity);
     //Update player position on server
-    socket.emit('update', [players[connectionid].velocity, starttime]);
+    socket.emit('update', players[connectionid].velocity);
   }
 }
