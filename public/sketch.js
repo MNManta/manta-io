@@ -162,8 +162,19 @@ function draw() {
       }
     }
 
+    var endtime = new Date().getTime();
+    var deltatime = (endtime - endtime)/2;
+    //console.log(deltatime);
+    if (deltatime <= 0){
+      deltatime = 1;
+    }
+    var framerate = 1/deltatime;
+    if (framerate >= 60){
+      framerate = 60;
+    }
+
     //console.log(players[connectionid].velocity);
     //Update player position on server
-    socket.emit('update', [players[connectionid].velocity, gametime]);
+    socket.emit('update', [players[connectionid].velocity, framerate]);
   }
 }
