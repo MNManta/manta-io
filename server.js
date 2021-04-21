@@ -59,10 +59,16 @@ io.on('connection',
         if (typeof players[clientid] !== "undefined"){
           var servertime = new Date().getTime();
           var deltatime = (servertime - data[1])/2;
-          //console.log(deltatime);
+          if (deltatime <= 0){
+            deltatime = 1;
+          }
+          var framerate = 1/deltatime;
+          if (framerate >= 60){
+            framerate = 60;
+          }
           players[clientid].velocity = data[0];
-          players[clientid].position = [players[clientid].position[0] + (players[clientid].velocity[0]),
-           players[clientid].position[1] + (players[clientid].velocity[1])];
+          players[clientid].position = [players[clientid].position[0] + (players[clientid].velocity[0]*framerate),
+           players[clientid].position[1] + (players[clientid].velocity[1]*framerate)];
 
           //console.log(players[clientid].position);
         }
