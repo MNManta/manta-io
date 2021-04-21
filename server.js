@@ -55,11 +55,17 @@ io.on('connection',
 
     socket.on('update',
       function(data) {
-
+        var endtime = new Date().getTime();
+        var deltatime = (endtime - starttime);
+        //console.log(deltatime);
+        var framerate = 1/deltatime;
+        if (framerate >= 60){
+          framerate = 60;
+        }
         if (typeof players[clientid] !== "undefined"){
           players[clientid].velocity = data[0];
-          players[clientid].position = [players[clientid].position[0] + (players[clientid].velocity[0]*data[1]),
-           players[clientid].position[1] + (players[clientid].velocity[1]*data[1])];
+          players[clientid].position = [players[clientid].position[0] + (players[clientid].velocity[0]*framerate),
+           players[clientid].position[1] + (players[clientid].velocity[1]*framerate)];
 
           //console.log(players[clientid].position);
         }
