@@ -121,7 +121,7 @@ function draw() {
       //console.log(velocity);
     }
 
-    var gametime = new Date().getTime();
+    var starttime = new Date().getTime();
 
     /* for (let key in players) {
       console.log(players[key]);
@@ -163,7 +163,7 @@ function draw() {
     }
 
     var endtime = new Date().getTime();
-    var deltatime = (endtime - endtime)/2;
+    var deltatime = (endtime - starttime)/2;
     //console.log(deltatime);
     if (deltatime <= 0){
       deltatime = 1;
