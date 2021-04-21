@@ -48,8 +48,8 @@ io.on('connection',
 
         socket.emit('getID', clientid);
         socket.emit('heartbeat', players);
-        console.log("Current players in lobby: ");
-        console.log(players);
+        //console.log("Current players in lobby: ");
+        //console.log(players);
       }
     );
 
@@ -57,14 +57,17 @@ io.on('connection',
       function(data) {
 
         if (typeof players[clientid] !== "undefined"){
-          players[clientid].velocity = data[clientid].velocity;
-          players[clientid].position = [players[clientid].position[0] + players[clientid].velocity[0],
-           players[clientid].position[1] + players[clientid].velocity[1]];
+          var servertime = new Date().getTime();
+          var deltatime = (servertime - data[1])/2;
+          //console.log(deltatime);
+          players[clientid].velocity = data[0];
+          players[clientid].position = [players[clientid].position[0] + (players[clientid].velocity[0]),
+           players[clientid].position[1] + (players[clientid].velocity[1])];
 
-          //console.log(players[clientid].velocity);
+          //console.log(players[clientid].position);
         }
         else{
-          console.log('Client with ID ' + clientid + ' disconnected');
+          //console.log('Client with ID ' + clientid + ' disconnected');
         }
         socket.emit('heartbeat', players);
       }
@@ -73,10 +76,10 @@ io.on('connection',
     socket.on('disconnect', function(){
         delete players[clientid];
         socket.emit('heartbeat', players);
-        console.log("The following client disconnected: ");
-        console.log(clientid);
-        console.log("Current players in lobby: ");
-        console.log(players);
+        //console.log("The following client disconnected: ");
+        //console.log(clientid);
+        //console.log("Current players in lobby: ");
+        //console.log(players);
         //console.log('Client with ID ' + socket.id + ' disconnected');
         //console.log("These are the players " + players);
       }
