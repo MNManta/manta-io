@@ -59,6 +59,7 @@ io.on('connection',
         if (typeof players[clientid] !== "undefined"){
           var servertime = new Date().getTime();
           var deltatime = (servertime - data[1])/2;
+          console.log(deltatime);
           if (deltatime <= 0){
             deltatime = 1;
           }
