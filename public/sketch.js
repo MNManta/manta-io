@@ -94,19 +94,19 @@ function draw() {
 
 
     if (keyIsDown(LEFT_ARROW)) {
-      players[connectionid].velocity[0] -= 0.15;
+      players[connectionid].velocity[0] -= 1;
     };
 
     if (keyIsDown(RIGHT_ARROW)) {
-      players[connectionid].velocity[0] += 0.15;
+      players[connectionid].velocity[0] += 1;
     };
 
     if (keyIsDown(UP_ARROW)) {
-      players[connectionid].velocity[1] -= 0.15;
+      players[connectionid].velocity[1] -= 1;
     };
 
     if (keyIsDown(DOWN_ARROW)) {
-      players[connectionid].velocity[1] += 0.15;
+      players[connectionid].velocity[1] += 1;
     };
 
     //Update player dictionary
