@@ -72,8 +72,6 @@ function draw() {
   if (players[connectionid] != null && players[connectionid] != "undefined"
   && players[connectionid] != {}) {
 
-    var startframe = new Date().getTime();
-
     //console.log(players[connectionid]);
 
     //Clear canvas.
@@ -165,10 +163,6 @@ function draw() {
     //console.log(players[connectionid].velocity);
     //Update player position on server
 
-    var endframe = new Date().getTime();
-
-    var deltatime = (endframe - startframe);
-
-    socket.emit('update', [players[connectionid].velocity, deltatime]);
+    socket.emit('update', players[connectionid].velocity);
   }
 }
