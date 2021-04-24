@@ -72,6 +72,8 @@ function draw() {
   if (players[connectionid] != null && players[connectionid] != "undefined"
   && players[connectionid] != {}) {
 
+    var startframe = new Date().getTime();
+
     //console.log(players[connectionid]);
 
     //Clear canvas.
@@ -94,19 +96,19 @@ function draw() {
 
 
     if (keyIsDown(LEFT_ARROW)) {
-      players[connectionid].velocity[0] -= 1;
+      players[connectionid].velocity[0] -= 0.15;
     };
 
     if (keyIsDown(RIGHT_ARROW)) {
-      players[connectionid].velocity[0] += 1;
+      players[connectionid].velocity[0] += 0.15;
     };
 
     if (keyIsDown(UP_ARROW)) {
-      players[connectionid].velocity[1] -= 1;
+      players[connectionid].velocity[1] -= 0.15;
     };
 
     if (keyIsDown(DOWN_ARROW)) {
-      players[connectionid].velocity[1] += 1;
+      players[connectionid].velocity[1] += 0.15;
     };
 
     //Update player dictionary
@@ -162,6 +164,11 @@ function draw() {
 
     //console.log(players[connectionid].velocity);
     //Update player position on server
-    socket.emit('update', players[connectionid].velocity);
+
+    var endframe = new Date().getTime();
+
+    var deltatime = (endframe - startframe);
+
+    socket.emit('update', [players[connectionid].velocity, deltatime]);
   }
 }

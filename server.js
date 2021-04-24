@@ -58,9 +58,9 @@ io.on('connection',
     socket.on('update',
       function(data) {
         if (typeof players[clientid] !== "undefined"){
-          players[clientid].velocity = data;
-          players[clientid].position = [lerp(players[clientid].position[0], players[clientid].position[0] + players[clientid].velocity[0], 0.1),
-           lerp(players[clientid].position[1], players[clientid].position[1] + players[clientid].velocity[1], 0.1)];
+          players[clientid].velocity = data[0];
+          players[clientid].position = [lerp(players[clientid].position[0], players[clientid].position[0] + players[clientid].velocity[0]*data[1], 0.1),
+           lerp(players[clientid].position[1], players[clientid].position[1] + players[clientid].velocity[1]*data[1], 0.1)];
 
           //console.log(players[clientid].velocity);
         }
