@@ -92,36 +92,35 @@ function draw() {
     ellipse(0,0, 340, 340);
     stroke(0);
 
-    for (let key in players) {
-      //console.log(players[key]);
-      show(players[key]);
-      //console.log(velocity);
-    }
-
-
-    if (keyIsDown(LEFT_ARROW)) {
-      players[connectionid].velocity[0] -= 0.1;
-    };
-
-    if (keyIsDown(RIGHT_ARROW)) {
-      players[connectionid].velocity[0] += 0.1;
-    };
-
-    if (keyIsDown(UP_ARROW)) {
-      players[connectionid].velocity[1] -= 0.1;
-    };
-
-    if (keyIsDown(DOWN_ARROW)) {
-      players[connectionid].velocity[1] += 0.1;
-    };
-
-
     //Update player dictionary
     socket.on('heartbeat', function(data){
       players = data;
       //console.log(players);
     });
 
+    for (let key in players) {
+      //console.log(players[key]);
+      show(players[key]);
+      //console.log(velocity);
+    }
+
+    if (keyIsDown(LEFT_ARROW)) {
+      players[connectionid].velocity[0] -= 0.01;
+    };
+
+    if (keyIsDown(RIGHT_ARROW)) {
+      players[connectionid].velocity[0] += 0.01;
+    };
+
+    if (keyIsDown(UP_ARROW)) {
+      players[connectionid].velocity[1] -= 0.01;
+    };
+
+    if (keyIsDown(DOWN_ARROW)) {
+      players[connectionid].velocity[1] += 0.01;
+    };
+
     socket.emit('update', players[connectionid].velocity);
+
   }
 }
