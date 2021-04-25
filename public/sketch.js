@@ -92,76 +92,35 @@ function draw() {
     ellipse(0,0, 340, 340);
     stroke(0);
 
-
-    if (keyIsDown(LEFT_ARROW)) {
-      players[connectionid].velocity[0] -= 1;
-    };
-
-    if (keyIsDown(RIGHT_ARROW)) {
-      players[connectionid].velocity[0] += 1;
-    };
-
-    if (keyIsDown(UP_ARROW)) {
-      players[connectionid].velocity[1] -= 1;
-    };
-
-    if (keyIsDown(DOWN_ARROW)) {
-      players[connectionid].velocity[1] += 1;
-    };
-
-    //Update player dictionary
-    socket.on('heartbeat', function(data){
-      players = data;
-    });
-
-
     for (let key in players) {
       //console.log(players[key]);
       show(players[key]);
       //console.log(velocity);
     }
 
-    /* for (let key in players) {
-      console.log(players[key]);
-      show(players[key]);
-    } */
 
-    //Check player collision with the map
-    for (i = 0; i < gamemap.pointArray.length; i += 4) {
-      isHit = collideLineCircle(gamemap.pointArray[i], gamemap.pointArray[i+1], gamemap.pointArray[i+2],
-        gamemap.pointArray[i+3], players[connectionid].position[0], players[connectionid].position[1],
-         wallwidth + players[connectionid].diameter);
-      if (isHit === true){
-        console.log("You hit a wall.");
-        players[connectionid].velocity = [0,0];
-        socket.emit('hitwall');
-        socket.on('heartbeat', function(data){
-          players = data;
-        });
-      }
-    }
-    for (let key in players){
-      if (key != connectionid){
-        hitPlayer = collideCircleCircle(players[connectionid].position[0], players[connectionid].position[1],
-          players[connectionid].diameter, players[key].position[0], players[key].position[1], players[key].diameter);
-        //console.log(hitPlayer);
-        if(hitPlayer === true){
-          //It works leave it alone.
-          var xdistance = (players[connectionid].position[0] - players[key].position[0]);
-          var ydistance = (players[connectionid].position[1] - players[key].position[1]);
-          var distance = (Math.sqrt(Math.pow(Math.abs(xdistance),2) + Math.pow(Math.abs(ydistance),2)));
+    if (keyIsDown(LEFT_ARROW)) {
+      players[connectionid].velocity[0] -= 0.1;
+    };
 
-          players[connectionid].velocity = [xdistance + players[key].velocity[0], ydistance + players[key].velocity[1]];
-          socket.emit('hitplayer', players[connectionid].velocity);
-          socket.on('heartbeat', function(data){
-            players = data;
-          });
-        }
-      }
-    }
+    if (keyIsDown(RIGHT_ARROW)) {
+      players[connectionid].velocity[0] += 0.1;
+    };
 
-    //console.log(players[connectionid].velocity);
-    //Update player position on server
+    if (keyIsDown(UP_ARROW)) {
+      players[connectionid].velocity[1] -= 0.1;
+    };
+
+    if (keyIsDown(DOWN_ARROW)) {
+      players[connectionid].velocity[1] += 0.1;
+    };
+
+
+    //Update player dictionary
+    socket.on('heartbeat', function(data){
+      players = data;
+      //console.log(players);
+    });
 
     socket.emit('update', players[connectionid].velocity);
   }
