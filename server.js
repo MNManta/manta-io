@@ -124,6 +124,7 @@ function heartbeat(){
           console.log("Player " + key + " hit a wall.");
           players[key].velocity = [0,0];
           players[key].position = [10*diameter*Math.random()*2 - 10*diameter, 10*diameter*Math.random()*2 - 10*diameter];
+          io.emit('heartbeat', players);
         }
       }
     }
@@ -146,6 +147,7 @@ function heartbeat(){
             players[key2].velocity = prev1;
             //console.log("New velocity for " + key1 +': ' + players[key1].velocity);
             //console.log("New velocity for " + key2 +': ' + players[key2].velocity);
+            io.emit('heartbeat', players);
           }
         }
       }
