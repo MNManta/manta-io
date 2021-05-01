@@ -163,9 +163,6 @@ function heartbeat(){
     io.emit('heartbeat', players);
     //console.log(players);
 }
-*/
-
-//function heartbeat(){
     //Check player collision with the map
     for (let key in players) {
       for (i = 0; i < gamemap.length; i += 4) {
@@ -215,6 +212,7 @@ function heartbeat(){
     io.emit('heartbeat', players);
     //console.log(players);
 }
+*/
 
 //setInterval(heartbeat, 1);
 
