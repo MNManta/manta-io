@@ -165,6 +165,57 @@ function heartbeat(){
 }
 */
 
+//function heartbeat(){
+    //Check player collision with the map
+    for (let key in players) {
+      for (i = 0; i < gamemap.length; i += 4) {
+        isHit = collideLineCircle(gamemap[i], gamemap[i+1], gamemap[i+2],
+          gamemap[i+3], players[key].position[0], players[key].position[1],
+           wallwidth + players[key].diameter);
+        if (isHit === true){
+          //console.log("Player " + key + " hit a wall.");
+          players[key].velocity = [0,0];
+          players[key].position = [10*diameter*Math.random()*2 - 10*diameter, 10*diameter*Math.random()*2 - 10*diameter];
+          io.emit('heartbeat', players);
+        }
+      }
+    }
+
+    //Check player-player collision
+    for (let key1 in players){
+      for (let key2 in players){
+        if (key1 < key2){
+          hitPlayer = collideCircleCircle(players[key1].position[0], players[key1].position[1],
+            players[key1].diameter, players[key2].position[0], players[key2].position[1], players[key2].diameter);
+          if(hitPlayer === true){
+            //console.log("Player " + key1 + " hit Player " + key2);
+            //console.log("Previous velocity for " + key1 +': ' + players[key1].velocity);
+            //console.log("Previous velocity for " + key2 +': ' + players[key2].velocity);
+
+            var prev1 = players[key1].velocity;
+            //console.log(players[key1].position, players[key1].velocity, players[key2].position, players[key2].velocity);
+            players[key1].velocity = players[key2].velocity;
+            //Prev1 is necessary so new player velocity doesn't get used
+            players[key2].velocity = prev1;
+            //console.log("New velocity for " + key1 +': ' + players[key1].velocity);
+            //console.log("New velocity for " + key2 +': ' + players[key2].velocity);
+            io.emit('heartbeat', players);
+          }
+        }
+      }
+    }
+
+    //Update player position
+    for (let key in players){
+      players[key].position = [players[key].position[0] + players[key].velocity[0],
+                              players[key].position[1] + players[key].velocity[1]];
+      //console.log(players[key].position, players[key].velocity);
+    }
+
+    io.emit('heartbeat', players);
+    //console.log(players);
+}
+
 //setInterval(heartbeat, 1);
 
 // Routing
