@@ -113,6 +113,49 @@ server.listen(port, () => {
 });
 
 
+//setInterval(heartbeat, 1);
+
+// Routing
+app.use(express.static(path.join(__dirname, 'public')));
+
+io.on('connection',
+  function(socket) {
+
+    var clientid = socket.id;
+
+    socket.on('start',
+      function(name) {
+        //When player connects, make a Player object
+        //Constructor Player(id, x, y, velocity, color, diameter)
+        playercolor = colorsArray[Math.floor(Math.random() * colorsArray.length)];
+        var player = new Player(10*diameter*Math.random()*2 - 10*diameter, 10*diameter*Math.random()*2 - 10*diameter,
+        playercolor, diameter, name);
+
+        players[clientid] = player;
+
+        socket.emit('getID', clientid);
+        socket.emit('heartbeat', players);
+      }
+    );
+
+    socket.on('update',
+      function(data) {
+        if (typeof players[clientid] !== "undefined"){
+          players[clientid].velocity = data;
+        }
+      }
+    );
+
+    socket.on('disconnect', function(){
+        delete players[clientid];
+        //console.log("Player with id " + clientid + " disconnected.");
+        socket.emit('heartbeat', players);
+      }
+    );
+
+  }
+);
+
 while (true){
   //Check player collision with the map
   for (let key in players) {
@@ -163,46 +206,3 @@ while (true){
   io.emit('heartbeat', players);
   //console.log(players);
 }
-
-//setInterval(heartbeat, 1);
-
-// Routing
-app.use(express.static(path.join(__dirname, 'public')));
-
-io.on('connection',
-  function(socket) {
-
-    var clientid = socket.id;
-
-    socket.on('start',
-      function(name) {
-        //When player connects, make a Player object
-        //Constructor Player(id, x, y, velocity, color, diameter)
-        playercolor = colorsArray[Math.floor(Math.random() * colorsArray.length)];
-        var player = new Player(10*diameter*Math.random()*2 - 10*diameter, 10*diameter*Math.random()*2 - 10*diameter,
-        playercolor, diameter, name);
-
-        players[clientid] = player;
-
-        socket.emit('getID', clientid);
-        socket.emit('heartbeat', players);
-      }
-    );
-
-    socket.on('update',
-      function(data) {
-        if (typeof players[clientid] !== "undefined"){
-          players[clientid].velocity = data;
-        }
-      }
-    );
-
-    socket.on('disconnect', function(){
-        delete players[clientid];
-        //console.log("Player with id " + clientid + " disconnected.");
-        socket.emit('heartbeat', players);
-      }
-    );
-
-  }
-);
