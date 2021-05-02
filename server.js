@@ -232,7 +232,8 @@ io.on('connection',
 
     socket.on('update',
       function(data) {
-        if (typeof lobbies[playerlobby] != null && typeof lobbies[playerlobby] != 'undefined'){
+        //console.log('from update', typeof lobbies[playerlobby], lobbies[playerlobby][1][clientid]);
+        if (typeof lobbies[playerlobby][1][clientid] != null && typeof lobbies[playerlobby][1][clientid] != 'undefined'){
           //console.log(lobbies);
           //console.log(lobbies[playerlobby][3]);
           //console.log('Player info', lobbies[playerlobby][1][clientid].velocity, data);
