@@ -232,25 +232,29 @@ io.on('connection',
 
     socket.on('update',
       function(data) {
-        //console.log(lobbies);
-        //console.log(lobbies[playerlobby][3]);
-        //console.log('Player info', lobbies[playerlobby][1][clientid].velocity, data);
-        lobbies[playerlobby][1][clientid].velocity = data;
-        //console.log('After data', lobbies[playerlobby][1][clientid].velocity, data);
-        lobbies[playerlobby][1][clientid].position = [lobbies[playerlobby][1][clientid].position[0] + lobbies[playerlobby][1][clientid].velocity[0],
-        lobbies[playerlobby][1][clientid].position[1] + lobbies[playerlobby][1][clientid].velocity[1]];
-        //console.log(lobbies[playerlobby][1][clientid].position, lobbies[playerlobby][1][clientid].velocity);
-        io.in(playerlobby).emit('heartbeat', [lobbies[playerlobby][1], lobbies[playerlobby][3]]);
-        }
+        if (typeof lobbies[playerlobby] != null && typeof lobbies[playerlobby] != 'undefined'){
+          //console.log(lobbies);
+          //console.log(lobbies[playerlobby][3]);
+          //console.log('Player info', lobbies[playerlobby][1][clientid].velocity, data);
+          lobbies[playerlobby][1][clientid].velocity = data;
+          //console.log('After data', lobbies[playerlobby][1][clientid].velocity, data);
+          lobbies[playerlobby][1][clientid].position = [lobbies[playerlobby][1][clientid].position[0] + lobbies[playerlobby][1][clientid].velocity[0],
+          lobbies[playerlobby][1][clientid].position[1] + lobbies[playerlobby][1][clientid].velocity[1]];
+          //console.log(lobbies[playerlobby][1][clientid].position, lobbies[playerlobby][1][clientid].velocity);
+          io.in(playerlobby).emit('heartbeat', [lobbies[playerlobby][1], lobbies[playerlobby][3]]);
+          }
+      }
     );
 
     socket.on('disconnect', function(){
+      if (typeof lobbies[playerlobby] != null && typeof lobbies[playerlobby] != 'undefined'){
         delete lobbies[playerlobby][1][clientid];
         io.in(playerlobby).emit('heartbeat', [lobbies[playerlobby][1], lobbies[playerlobby][3]]);
         //console.log("Player with id " + clientid + " disconnected.");
         //io.to(playerlobby).emit('heartbeat', [lobbies[playerlobby][1], lobbies[playerlobby][3]]);
       }
-    );
+    }
+  );
 
   }
 );
