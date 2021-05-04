@@ -155,7 +155,7 @@ function heartbeat(){
                               lobbies[room][1][key].position[1] + lobbies[room][1][key].velocity[1]];
     }
 
-    console.log([lobbies[room][1], lobbies[room][3]]);
+    //console.log([lobbies[room][1], lobbies[room][3]]);
     io.in(room).emit('heartbeat', [lobbies[room][1], lobbies[room][3]]);
   }
 }
@@ -176,12 +176,13 @@ app.get('/', function(req, res) {
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-var playerlobby;
 
 io.on('connection',
   function(socket) {
 
     var clientid = socket.id;
+
+    var playerlobby;
 
     socket.on('start',
       function(name) {
@@ -192,24 +193,25 @@ io.on('connection',
         //When player connects, make a Player object
         //Constructor Player(id, x, y, velocity, color, diameter)
         var playercolor = colorsArray[Math.floor(Math.random() * colorsArray.length)];
-        console.log('Lobby id and lobby', playerlobby, typeof playerlobby, lobbies[playerlobby]);
+        //console.log('Lobby id and lobby', playerlobby, typeof playerlobby, lobbies[playerlobby]);
         numberplayers = Object.keys(lobbies[playerlobby][1]).length;
 
-        console.log(numberplayers);
+        //console.log(numberplayers);
         var player = new Player((0.75*(borderdiameter/2))*Math.cos((numberplayers*2*Math.PI)/lobbies[playerlobby][0]),
         (0.75*(borderdiameter/2))*Math.sin((numberplayers*2*Math.PI)/lobbies[playerlobby][0]),
         playercolor, diameter, name);
 
         lobbies[playerlobby][1][clientid] = player;
-        console.log('playerlobby is', playerlobby);
-        console.log('What is the socket room?', socket.rooms);
+        //console.log('playerlobby is', playerlobby);
+        //console.log('What is the socket room?', socket.rooms);
         io.in(playerlobby).emit('heartbeat', [lobbies[playerlobby][1], lobbies[playerlobby][3]]);
-        console.log([lobbies[playerlobby][1], lobbies[playerlobby][3]]);
+        //([lobbies[playerlobby][1], lobbies[playerlobby][3]]);
       }
     );
 
     socket.on('ready',
-      function(){
+      function(data){
+        playerlobby = data;
         socket.emit('getID', clientid);
         socket.emit('openlobbies', lobbies);
       }
@@ -219,7 +221,7 @@ io.on('connection',
       function(data){
         //{lobbyid: [size, {players}, {powerups}, borderdiameter]
         lobbies[data[0]] = [data[1], {}, {}, borderdiameter];
-        console.log(lobbies);
+        //console.log(lobbies);
         socket.emit('openlobbies', lobbies);
       }
     );
@@ -233,7 +235,7 @@ io.on('connection',
     socket.on('update',
       function(data) {
         //console.log('from update', typeof lobbies[playerlobby], lobbies[playerlobby][1][clientid]);
-        if (typeof lobbies[playerlobby][1][clientid] != null && typeof lobbies[playerlobby][1][clientid] != 'undefined'){
+        if (typeof lobbies[playerlobby] != null && typeof lobbies[playerlobby] != 'undefined'){
           //console.log(lobbies);
           //console.log(lobbies[playerlobby][3]);
           //console.log('Player info', lobbies[playerlobby][1][clientid].velocity, data);

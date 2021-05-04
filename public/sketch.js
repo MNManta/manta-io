@@ -35,6 +35,7 @@ function generatelobby() {
 }
 
 function joinGame() {
+    socket.emit('ready', gamelobby);
     var gamecode = document.getElementById("gamecodeInput").value.trim();
     if ((gamecode in openlobbies)){
       if (Object.keys(openlobbies[gamecode][1]).length + 1 <= openlobbies[gamecode][0]){
@@ -66,13 +67,18 @@ function savename() {
 }
 
 function setup() {
+
+    var gameurl = new URL(document.URL);
+
+    var gamelobby = gameurl.searchParams.get('lobby');
+
     //Full screen canvas
     createCanvas(windowWidth, windowHeight);
 
     //Create socket connection
     socket = io();
 
-    socket.emit('ready');
+    socket.emit('ready', gamelobby);
 
     socket.on('getID',
       function(data){
