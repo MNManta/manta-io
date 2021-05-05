@@ -6,9 +6,11 @@ const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const port = process.env.PORT || 80;
 
+
+//This is not used and can be removed
 var lerp = require('lerp');
 
-//{lobbyid: [size, {players}, {powerups}, borderdiameter]
+//{lobbyid: [size, {players}, started, borderdiameter, timestamp, bordercolor, winner]
 var lobbies = {};
 
 //var players = {};
@@ -17,19 +19,31 @@ var diameter = 20;
 
 var borderdiameter = 1000;
 
+var bordercolor = '#011627';
+
 var borderwidth = 10;
 
 var colorsArray = ['#988B8E', '#140D4F', '#E5C3D1', '#6FEDB7', '#3F26D9', '#E07A5F', '#F2CC8F',
 '#6B0504', '#FF84E8', '#414361', '#9EBD6E', "#805D93", "#385F71", "#CF4D6F", "#f44473", "#c91979",
 "#190647","#080026","#05221b","#fcbb92","#fbaa68","#fb9755","#7cd8cd","#d4e99b"];
 
+function randKey(obj){
+  var keys = Object.keys(obj);
+  return keys[Math.floor(Math.random() * keys.length)];
+}
+
 function Player(x, y, color, diameter, name){
   this.position = [x, y];
   this.velocity = [0,0];
   this.color = color;
+
+  //Remove this?
   this.mass = Math.PI*(diameter/2)*(diameter/2);
+
   this.diameter = diameter;
   this.name = name;
+  this.dead = false;
+  this.spectating;
 }
 
 function distance(x1, y1, x2, y2){
@@ -115,56 +129,143 @@ server.listen(port, () => {
 
 
 function heartbeat(){
+  //{lobbyid: [size, {players}, started, borderdiameter, timestamp, bordercolor, winner]
   for (let room in lobbies){
-    //Check player collision with the map borderwidth is half because we only care about interior
-    for (let key in lobbies[room][1]) {
-        isHit = (Math.sqrt(lobbies[room][1][key].position[0]*lobbies[room][1][key].position[0] + lobbies[room][1][key].position[1]*lobbies[room][1][key].position[1]) > ((lobbies[room][3]/2) - (lobbies[room][1][key].diameter/2) - (borderwidth/2)));
-        if (isHit === true){
-          //console.log("Player " + key + " hit a wall.");
-          lobbies[room][1][key].velocity = [0,0];
-          lobbies[room][1][key].position = [(0.75*(lobbies[room][3]/2))*Math.cos(((Object.keys(lobbies[room][1]).indexOf(key))*2*Math.PI)/lobbies[room][0]),
-          (0.75*(borderdiameter/2))*Math.sin(((Object.keys(lobbies[room][1]).indexOf(key))*2*Math.PI)/lobbies[room][0])];
-          io.in(room).emit('heartbeat', [lobbies[room][1], lobbies[room][3]]);
-        }
-    }
-
-    //Check player-player collision
-    for (let key1 in lobbies[room][1]){
-      for (let key2 in lobbies[room][1]){
-        if (key1 < key2){
-          hitPlayer = collideCircleCircle(lobbies[room][1][key1].position[0], lobbies[room][1][key1].position[1],
-            lobbies[room][1][key1].diameter, lobbies[room][1][key2].position[0], lobbies[room][1][key2].position[1], lobbies[room][1][key2].diameter);
-          if(hitPlayer === true){
-
-            var prev1 = lobbies[room][1][key1].velocity;
-
-            lobbies[room][1][key1].velocity = [lobbies[room][1][key2].velocity[0] + 0.05*(lobbies[room][1][key1].position[0] - lobbies[room][1][key2].position[0]),
-                                               lobbies[room][1][key2].velocity[1] + 0.05*(lobbies[room][1][key1].position[1] - lobbies[room][1][key2].position[1])];
-
-            //Prev1 is necessary so new player velocity doesn't get used
-            lobbies[room][1][key2].velocity = [prev1[0] - 0.05*(lobbies[room][1][key1].position[0] - lobbies[room][1][key2].position[0]),
-                                               prev1[1] - 0.05*(lobbies[room][1][key1].position[1] - lobbies[room][1][key2].position[1])];
-
-            io.in(room).emit('heartbeat', [lobbies[room][1], lobbies[room][3]]);
-          }
-        }
+    if (lobbies[room][2] == false){
+      if (lobbies[room][0] == Object.keys(lobbies[room][1]).length){
+        lobbies[room][2] = true;
+        io.in(room).emit('starting');
+        lobbies[room][4] = Date.now();
+        io.in(room).emit('heartbeat', [lobbies[room][1], lobbies[room][3], lobbies[room][5]]);
+      }
+      else{
+        io.in(room).emit('waiting', lobbies[room][0] - Object.keys(lobbies[room][1]).length);
+        io.in(room).emit('heartbeat', [lobbies[room][1], lobbies[room][3], lobbies[room][5]]);
       }
     }
+    else{
+      io.in(room).emit('starting');
+      var playersalive = 0;
+      for (let plyr in lobbies[room][1]){
+        if (lobbies[room][1][plyr].dead == false){
+          playersalive += 1;
+        }
+      }
+      if (playersalive > 1){
+        //{lobbyid: [size, {players}, started, borderdiameter, timestamp, bordercolor, winner]
+        if (lobbies[room][3] > 400){
+          //Shrink the border every other five second period
+          if (Date.now() - lobbies[room][4] < 5000){
+            lobbies[room][5] = bordercolor;
+          }
+          else if (Date.now() - lobbies[room][4] > 5000 && Date.now() - lobbies[room][4] < 10000){
+            lobbies[room][5] = '#DE020A';
 
-    //Update player position
-    for (let key in lobbies[room][1]){
-      //console.log(lobbies[room][1][key].position[0], lobbies[room][1][key].velocity[0]);
-      lobbies[room][1][key].position = [lobbies[room][1][key].position[0] + lobbies[room][1][key].velocity[0],
-                              lobbies[room][1][key].position[1] + lobbies[room][1][key].velocity[1]];
+            lobbies[room][3] -= 0.1;
+          }
+          else{
+            lobbies[room][4] = Date.now();
+          }
+        }
+        else{
+          lobbies[room][5] = bordercolor;
+        }
+
+        //Check player collision with the map borderwidth is half because we only care about interior
+        for (let key in lobbies[room][1]) {
+            isHit = (Math.sqrt(lobbies[room][1][key].position[0]*lobbies[room][1][key].position[0] + lobbies[room][1][key].position[1]*lobbies[room][1][key].position[1]) > ((lobbies[room][3]/2) - (lobbies[room][1][key].diameter/2) - (borderwidth/2)));
+            if (isHit === true){
+              //console.log("Player " + key + " hit a wall.");
+              lobbies[room][1][key].velocity = [0,0];
+              lobbies[room][1][key].position = [0,0];
+              lobbies[room][1][key].diameter = 0;
+              lobbies[room][1][key].dead = true;
+
+              var playerwatch = randKey(lobbies[room][1]);
+
+              while (playerwatch == key || lobbies[room][1][playerwatch].dead == true){
+                playerwatch = randKey(lobbies[room][1]);
+              }
+              lobbies[room][1][key].spectating = playerwatch;
+              //io.in(room).emit('heartbeat', [lobbies[room][1], lobbies[room][3], lobbies[room][5]]);
+          }
+        }
+
+        //Check player-player collision
+        for (let key1 in lobbies[room][1]){
+          for (let key2 in lobbies[room][1]){
+            if (key1 < key2){
+              if (lobbies[room][1][key1].dead == false && lobbies[room][1][key2].dead == false){
+                hitPlayer = collideCircleCircle(lobbies[room][1][key1].position[0], lobbies[room][1][key1].position[1],
+                  lobbies[room][1][key1].diameter, lobbies[room][1][key2].position[0], lobbies[room][1][key2].position[1], lobbies[room][1][key2].diameter);
+                if(hitPlayer === true){
+
+                  var prev1 = lobbies[room][1][key1].velocity;
+
+                  lobbies[room][1][key1].velocity = [lobbies[room][1][key2].velocity[0] + 0.05*(lobbies[room][1][key1].position[0] - lobbies[room][1][key2].position[0]),
+                                                     lobbies[room][1][key2].velocity[1] + 0.05*(lobbies[room][1][key1].position[1] - lobbies[room][1][key2].position[1])];
+
+                  //Prev1 is necessary so new player velocity doesn't get used
+                  lobbies[room][1][key2].velocity = [prev1[0] - 0.05*(lobbies[room][1][key1].position[0] - lobbies[room][1][key2].position[0]),
+                                                     prev1[1] - 0.05*(lobbies[room][1][key1].position[1] - lobbies[room][1][key2].position[1])];
+
+                  io.in(room).emit('heartbeat', [lobbies[room][1], lobbies[room][3], lobbies[room][5]]);
+                }
+              }
+            }
+          }
+        }
+
+        //Update player position
+        for (let key in lobbies[room][1]){
+          if (lobbies[room][1][key].dead == false){
+            //console.log(lobbies[room][1][key].position[0], lobbies[room][1][key].velocity[0]);
+            lobbies[room][1][key].position = [lobbies[room][1][key].position[0] + lobbies[room][1][key].velocity[0],
+                                    lobbies[room][1][key].position[1] + lobbies[room][1][key].velocity[1]];
+          }
+          else{
+            if (lobbies[room][1][lobbies[room][1][key].spectating] != 'undefined' && lobbies[room][1][lobbies[room][1][key].spectating] != null){
+              lobbies[room][1][key].position = lobbies[room][1][lobbies[room][1][key].spectating].position;
+            }
+          }
+        }
+
+        //console.log([lobbies[room][1], lobbies[room][3]]);
+        io.in(room).emit('heartbeat', [lobbies[room][1], lobbies[room][3], lobbies[room][5]]);
+      }
+      else{
+        for (let plyr in lobbies[room][1]){
+          if (lobbies[room][1][plyr].dead == false){
+            lobbies[room][6] = lobbies[room][1][plyr].name;
+          }
+        }
+        //console.log(lobbies[room][1][6]);
+        io.in(room).emit('gameover', lobbies[room][6]);
+      }
     }
-
-    //console.log([lobbies[room][1], lobbies[room][3]]);
-    io.in(room).emit('heartbeat', [lobbies[room][1], lobbies[room][3]]);
   }
 }
 
+//This can be sped up
 setInterval(heartbeat, 10);
 
+//{lobbyid: [size, {players}, started, borderdiameter, timestamp, bordercolor, winner]
+function broom(){
+  for (let room in lobbies){
+    if (Date.now() - lobbies[room][4] > 120000){
+      if (Object.keys(lobbies[room][1]).length == 0){
+        delete lobbies[room];
+      }
+      else{
+        lobbies[room][4] = Date.now();
+      }
+    }
+  }
+  console.log(lobbies);
+}
+
+//Clears empty rooms that have not been used in 2 mins (checks every 4 mins)
+setInterval(broom, 240000);
 
 // Routing
 app.get('/', function(req, res) {
@@ -189,26 +290,27 @@ io.on('connection',
 
     socket.on('start',
       function(name) {
+        if (typeof lobbies[playerlobby] != null && typeof lobbies[playerlobby] != 'undefined'){
+          socket.join(playerlobby);
 
-        socket.join(playerlobby);
+          //{lobbyid: [size, {players}, started, borderdiameter, timestamp, bordercolor, winner]
+          //When player connects, make a Player object
+          //Constructor Player(id, x, y, velocity, color, diameter)
+          var playercolor = colorsArray[Math.floor(Math.random() * colorsArray.length)];
+          //console.log('Lobby id and lobby', playerlobby, typeof playerlobby, lobbies[playerlobby]);
+          numberplayers = Object.keys(lobbies[playerlobby][1]).length;
 
-        //{lobbyid: [size, {players}, {powerups}, borderdiameter]
-        //When player connects, make a Player object
-        //Constructor Player(id, x, y, velocity, color, diameter)
-        var playercolor = colorsArray[Math.floor(Math.random() * colorsArray.length)];
-        //console.log('Lobby id and lobby', playerlobby, typeof playerlobby, lobbies[playerlobby]);
-        numberplayers = Object.keys(lobbies[playerlobby][1]).length;
+          //console.log(numberplayers);
+          var player = new Player(((0.75 + (Math.random()/100))*(borderdiameter/2))*Math.cos((numberplayers*2*Math.PI)/lobbies[playerlobby][0]),
+          ((0.75 + (Math.random()/100))*(borderdiameter/2))*Math.sin((numberplayers*2*Math.PI)/lobbies[playerlobby][0]),
+          playercolor, diameter, name);
 
-        //console.log(numberplayers);
-        var player = new Player((0.75*(borderdiameter/2))*Math.cos((numberplayers*2*Math.PI)/lobbies[playerlobby][0]),
-        (0.75*(borderdiameter/2))*Math.sin((numberplayers*2*Math.PI)/lobbies[playerlobby][0]),
-        playercolor, diameter, name);
-
-        lobbies[playerlobby][1][clientid] = player;
-        //console.log('playerlobby is', playerlobby);
-        //console.log('What is the socket room?', socket.rooms);
-        io.in(playerlobby).emit('heartbeat', [lobbies[playerlobby][1], lobbies[playerlobby][3]]);
-        //([lobbies[playerlobby][1], lobbies[playerlobby][3]]);
+          lobbies[playerlobby][1][clientid] = player;
+          //console.log('playerlobby is', playerlobby);
+          //console.log('What is the socket room?', socket.rooms);
+          io.in(playerlobby).emit('heartbeat', [lobbies[playerlobby][1], lobbies[playerlobby][3], lobbies[playerlobby][5]]);
+          //([lobbies[playerlobby][1], lobbies[playerlobby][3]]);
+        }
       }
     );
 
@@ -222,8 +324,8 @@ io.on('connection',
 
     socket.on('makelobby',
       function(data){
-        //{lobbyid: [size, {players}, {powerups}, borderdiameter]
-        lobbies[data[0]] = [data[1], {}, {}, borderdiameter];
+        //{lobbyid: [size, {players}, started, borderdiameter, timestamp, bordercolor, winner]
+        lobbies[data[0]] = [data[1], {}, false, borderdiameter, Date.now(), bordercolor, null];
         //console.log(lobbies);
         socket.emit('openlobbies', lobbies);
       }
@@ -247,17 +349,20 @@ io.on('connection',
           lobbies[playerlobby][1][clientid].position = [lobbies[playerlobby][1][clientid].position[0] + lobbies[playerlobby][1][clientid].velocity[0],
           lobbies[playerlobby][1][clientid].position[1] + lobbies[playerlobby][1][clientid].velocity[1]];
           //console.log(lobbies[playerlobby][1][clientid].position, lobbies[playerlobby][1][clientid].velocity);
-          io.in(playerlobby).emit('heartbeat', [lobbies[playerlobby][1], lobbies[playerlobby][3]]);
+          io.in(playerlobby).emit('heartbeat', [lobbies[playerlobby][1], lobbies[playerlobby][3], lobbies[playerlobby][5]]);
           }
       }
     );
 
     socket.on('disconnect', function(){
-      if (typeof lobbies[playerlobby] != null && typeof lobbies[playerlobby] != 'undefined'){
+      if (lobbies[playerlobby] != null && lobbies[playerlobby] != 'undefined'){
         delete lobbies[playerlobby][1][clientid];
-        io.in(playerlobby).emit('heartbeat', [lobbies[playerlobby][1], lobbies[playerlobby][3]]);
-        //console.log("Player with id " + clientid + " disconnected.");
-        //io.to(playerlobby).emit('heartbeat', [lobbies[playerlobby][1], lobbies[playerlobby][3]]);
+        //console.log(lobbies[playerlobby]);
+        if (lobbies[playerlobby][6] == null || lobbies[playerlobby] == 'undefined'){
+          io.in(playerlobby).emit('heartbeat', [lobbies[playerlobby][1], lobbies[playerlobby][3], lobbies[playerlobby][5]]);
+          //console.log("Player with id " + clientid + " disconnected.");
+          //io.to(playerlobby).emit('heartbeat', [lobbies[playerlobby][1], lobbies[playerlobby][3]]);
+        }
       }
     }
   );

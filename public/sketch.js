@@ -6,13 +6,19 @@ var playername;
 
 var players = {};
 
+var gamestarted = false;
+var gameover = false;
+var winner;
+var playersleft = 0;
+
 var openlobbies = {};
 
 var borderdiameter;
+var bordercolor = '#011627';
 var borderwidth = 10;
 
 function gamemap(){
-    stroke('#011627');
+    stroke(bordercolor);
     strokeWeight(borderwidth);
     noFill();
     ellipse(0,0, borderdiameter, borderdiameter);
@@ -63,18 +69,33 @@ function savename() {
 
     socket.emit('ready', gamelobby);
 
-    if (gamelobby in openlobbies && (Object.keys(openlobbies[gamelobby][1]).length + 1 <= openlobbies[gamelobby][0])){
-        var playername = document.getElementById("usernameinputid").value.trim();
-        if (playername.trim().length >= 1){
-          document.getElementById("usernameform").remove();
-          //Call server to build the player
-          socket.emit('start', playername);
+    if (gamelobby in openlobbies){
+      if (openlobbies[gamelobby][2] == false){
+        if (Object.keys(openlobbies[gamelobby][1]).length + 1 <= openlobbies[gamelobby][0]){
+          var playername = document.getElementById("usernameinputid").value.trim();
+          if (playername.trim().length >= 1){
+            document.getElementById("usernameform").remove();
+            //Call server to build the player
+            socket.emit('start', playername);
+          }
+        }
+        else{
+          document.getElementById("usernameform").style.animation = 'shake 0.2s';
+          document.getElementById("lobbyfull").innerHTML = "Lobby is full";
+          document.getElementById("lobbyfull").style.opacity = 1;
         }
       }
+      else{
+        document.getElementById("usernameform").style.animation = 'shake 0.2s';
+        document.getElementById("lobbyfull").innerHTML = "Lobby is closed";
+        document.getElementById("lobbyfull").style.opacity = 1;
+      }
+    }
     else{
       document.getElementById("usernameform").style.animation = 'shake 0.2s';
+      document.getElementById("lobbyfull").innerHTML = "Lobby is closed";
       document.getElementById("lobbyfull").style.opacity = 1;
-      console.log('This returned false');
+      //console.log('This returned false');
     }
 }
 
@@ -102,10 +123,12 @@ function setup() {
         openlobbies = data;
     });
 
+
     socket.on('heartbeat',
       function(data){
         players = data[0];
         borderdiameter = data[1];
+        bordercolor = data[2];
       }
     );
 
@@ -118,12 +141,14 @@ function windowResized() {
 
 //Draw the player
 function show(player){
-  fill(player.color);
-  strokeWeight(0);
-  ellipse(player.position[0], player.position[1], player.diameter, player.diameter);
-  textAlign(CENTER);
-  textFont('Verdana');
-  text(player.name, player.position[0], player.position[1] + (1.2*player.diameter));
+  if (player.dead == false){
+    fill(player.color);
+    strokeWeight(0);
+    ellipse(player.position[0], player.position[1], player.diameter, player.diameter);
+    textAlign(CENTER);
+    textFont('Verdana');
+    text(player.name, player.position[0], player.position[1] + (1.2*player.diameter));
+  }
 }
 
 
@@ -145,13 +170,12 @@ function draw() {
     //Draw the map
     gamemap();
 
-    //Update player dictionary and update border
-    socket.on('heartbeat',
-      function(data){
-        players = data[0];
-        borderdiameter = data[1];
-      }
-    );
+    socket.on('starting', function(){
+      gamestarted = true;
+    });
+    socket.on('waiting', function(data){
+      playersleft = data;
+    });
 
     //console.log(players[connectionid].velocity);
 
@@ -161,27 +185,75 @@ function draw() {
       //console.log(velocity);
     }
 
-    if (keyIsDown(LEFT_ARROW)) {
-      players[connectionid].velocity[0] -= 0.1;
-    };
+    if (gamestarted == true){
+      if (gameover == true){
+          fill('#011627');
+          textSize(36);
+          textAlign(CENTER);
+          textFont('Verdana');
+          text('The winner is ' +  winner, 0,0);
+          textSize(12);
+      }
+      else{
+        socket.on('gameover', function(data){
+          gameover = true;
+          winner = data;
+        });
 
-    if (keyIsDown(RIGHT_ARROW)) {
-      players[connectionid].velocity[0] += 0.1;
-    };
+        //Update player dictionary and update border
+        socket.on('heartbeat',
+          function(data){
+            players = data[0];
+            borderdiameter = data[1];
+            bordercolor = data[2];
+          }
+        );
 
-    if (keyIsDown(UP_ARROW)) {
-      players[connectionid].velocity[1] -= 0.1;
-    };
+        //console.log(gameover, 'Received heartbeat');
 
-    if (keyIsDown(DOWN_ARROW)) {
-      players[connectionid].velocity[1] += 0.1;
-    };
+        if (players[connectionid].dead == false){
+          if (keyIsDown(LEFT_ARROW)) {
+            players[connectionid].velocity[0] -= 0.1;
+          };
 
-    //console.log(players[connectionid]);
-    socket.emit('update', players[connectionid].velocity);
+          if (keyIsDown(RIGHT_ARROW)) {
+            players[connectionid].velocity[0] += 0.1;
+          };
+
+          if (keyIsDown(UP_ARROW)) {
+            players[connectionid].velocity[1] -= 0.1;
+          };
+
+          if (keyIsDown(DOWN_ARROW)) {
+            players[connectionid].velocity[1] += 0.1;
+          };
+          //console.log(players[connectionid]);
+          socket.emit('update', players[connectionid].velocity);
+        }
+      }
+    }
+    else{
+      fill('#011627');
+      textSize(36);
+      textAlign(CENTER);
+      textFont('Verdana');
+      if (playersleft == 1){
+        text('Waiting on 1 player...', 0,0);
+      }
+      else{
+        text('Waiting on ' + playersleft + ' players...', 0,0);
+      }
+      textSize(12);
+    }
 
   }
   else {
+    var gameurl = new URL(document.URL);
+
+    var gamelobby = gameurl.searchParams.get('lobby');
+
+    socket.emit('ready', gamelobby);
+
     socket.on('getID',
       function(data){
         connectionid = data;

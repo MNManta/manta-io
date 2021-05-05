@@ -10,9 +10,9 @@
   "scripts": {
     "start": "node server.js"
   },
-  "name": "dotracer",
-  "version": "1.0.0",
-  "description": "Racing IO game",
+  "name": "manta-io",
+  "version": "0.1.2",
+  "description": "IO game in development",
   "main": "\t",
   "author": "Michael Manta",
   "license": "ISC"
