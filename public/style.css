@@ -143,12 +143,17 @@ html, body {
   padding-bottom: 15px;
 }
 
-#lobbyerror {
+#lobbyerror{
   color: red;
   opacity: 0;
 }
 
-#sizeerror {
+#sizeerror{
+  color: red;
+  opacity: 0;
+}
+
+#lobbyfull{
   color: red;
   opacity: 0;
 }

@@ -13,7 +13,7 @@ var lobbies = {};
 
 //var players = {};
 
-var diameter = 12;
+var diameter = 20;
 
 var borderdiameter = 1000;
 
@@ -138,9 +138,12 @@ function heartbeat(){
 
             var prev1 = lobbies[room][1][key1].velocity;
 
-            lobbies[room][1][key1].velocity = lobbies[room][1][key2].velocity;
+            lobbies[room][1][key1].velocity = [lobbies[room][1][key2].velocity[0] + 0.05*(lobbies[room][1][key1].position[0] - lobbies[room][1][key2].position[0]),
+                                               lobbies[room][1][key2].velocity[1] + 0.05*(lobbies[room][1][key1].position[1] - lobbies[room][1][key2].position[1])];
+
             //Prev1 is necessary so new player velocity doesn't get used
-            lobbies[room][1][key2].velocity = prev1;
+            lobbies[room][1][key2].velocity = [prev1[0] - 0.05*(lobbies[room][1][key1].position[0] - lobbies[room][1][key2].position[0]),
+                                               prev1[1] - 0.05*(lobbies[room][1][key1].position[1] - lobbies[room][1][key2].position[1])];
 
             io.in(room).emit('heartbeat', [lobbies[room][1], lobbies[room][3]]);
           }

@@ -58,11 +58,23 @@ function joinGame() {
 }
 
 function savename() {
-    var playername = document.getElementById("usernameinputid").value.trim();
-    if (playername.trim().length >= 1){
-      document.getElementById("usernameform").remove();
-      //Call server to build the player
-      socket.emit('start', playername);
+    var gameurl = new URL(document.URL);
+    var gamelobby = gameurl.searchParams.get('lobby');
+
+    socket.emit('ready', gamelobby);
+
+    if (gamelobby in openlobbies && (Object.keys(openlobbies[gamelobby][1]).length + 1 <= openlobbies[gamelobby][0])){
+        var playername = document.getElementById("usernameinputid").value.trim();
+        if (playername.trim().length >= 1){
+          document.getElementById("usernameform").remove();
+          //Call server to build the player
+          socket.emit('start', playername);
+        }
+      }
+    else{
+      document.getElementById("usernameform").style.animation = 'shake 0.2s';
+      document.getElementById("lobbyfull").style.opacity = 1;
+      console.log('This returned false');
     }
 }
 
@@ -111,7 +123,7 @@ function show(player){
   ellipse(player.position[0], player.position[1], player.diameter, player.diameter);
   textAlign(CENTER);
   textFont('Verdana');
-  text(player.name, player.position[0], player.position[1] + (1.5*player.diameter));
+  text(player.name, player.position[0], player.position[1] + (1.2*player.diameter));
 }
 
 
