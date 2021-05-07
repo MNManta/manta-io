@@ -41,8 +41,9 @@ function generatelobby() {
 }
 
 function joinGame() {
-    socket.emit('ready', gamelobby);
     var gamecode = document.getElementById("gamecodeInput").value.trim();
+    socket.emit('ready', gamecode);
+    console.log((gamecode in openlobbies));
     if ((gamecode in openlobbies)){
       if (Object.keys(openlobbies[gamecode][1]).length + 1 <= openlobbies[gamecode][0]){
         socket.emit('joinlobby', gamecode);
